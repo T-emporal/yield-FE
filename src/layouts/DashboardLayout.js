@@ -4,7 +4,7 @@ import React from "react";
 const navigation = [
   {
     name: "Markets",
-    href: "/markets",
+    href: "/",
     icon: "/icon_markets.svg",
     iconSelected: "/icon_markets_selected.svg",
   },
