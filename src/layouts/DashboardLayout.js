@@ -67,7 +67,7 @@ function DashboardLayout({ children, activePage }) {
           Connect Wallet
         </button>
       </header>
-      <section className="max-w-[1200px] mx-auto">{children}</section>
+      <section className="max-w-[1440px] mx-auto">{children}</section>
       <footer></footer>
     </main>
   );
