@@ -23,11 +23,14 @@ function OrdersLayout() {
           <span className="text-sm text-[#0ABAB5]">824,6969</span>
         </div>
       </div>
-      <div className="flex items-center space-x-3  w-full h-full">
-        <div className="min-w-[600px] border border-[#395251]">
+      <div
+        className="grid space-x-3 w-full"
+        style={{ gridTemplateColumns: "600px 1fr" }}
+      >
+        <div className="border border-[#395251]">
           <PlaceOrderCard />
         </div>
-        <div className=" w-full h-full border border-[#395251]">
+        <div className=" border border-[#395251]">
           <YieldCurveCard />
         </div>
       </div>

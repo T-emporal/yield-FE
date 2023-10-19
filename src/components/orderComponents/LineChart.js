@@ -10,7 +10,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import LineChart from "./LineChart";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -31,7 +30,7 @@ export const options = {
     },
     title: {
       display: true,
-      text: "Chart.js Line Chart",
+
     },
   },
 };
@@ -49,13 +48,12 @@ export const data = {
     },
   ],
 };
-function YieldCurveCard() {
+function LineChart() {
   return (
-    <div className=" h-full bg-[#15191D] p-6">
-      <span className="text-xl font-bold text-white">Yield Curve</span>
-      <LineChart />
+    <div className=" bg-[#15191D] p-6">
+      <Line options={options} data={data} height={"450px"} />
     </div>
   );
 }
 
-export default YieldCurveCard;
+export default LineChart;

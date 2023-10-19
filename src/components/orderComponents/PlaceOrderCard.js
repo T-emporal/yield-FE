@@ -283,7 +283,7 @@ const PlaceOrderCard = () => {
 
       <div className="mb-4 bg-[#036B681A] border border-temporal py-2 px-4">
         <div className="text-white text-sm">Estimated Yield:</div>
-        <div className="text-temporal text-xl">112%</div>
+        <div className="text-temporal text-xl">{collateralLevel}%</div>
       </div>
 
       <button className="w-full py-2 bg-temporal text-white rounded-md">
