@@ -142,56 +142,60 @@ const PlaceOrderCard = ({ handleClick }) => {
             </Transition>
           </div>
         </Listbox>
-        {currentMode == "Borrow" && (
-          <>
-            <div className="flex items-center space-x-4 w-full">
-              <div className="w-full">
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-medium leading-6 text-gray-100"
-                >
-                  Quantity
-                </label>
-                <div className="relative mt-2 rounded-md shadow-sm">
-                  <input
-                    type="text"
-                    name="price"
-                    id="price"
-                    className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
-                    placeholder="0.00"
-                    aria-describedby="price-currency"
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-white sm:text-sm" id="price-currency">
-                      Asset A
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full">
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-medium leading-6 text-gray-100"
-                >
-                  Duration
-                </label>
-                <div className="relative mt-2 rounded-md shadow-sm">
-                  <input
-                    type="text"
-                    name="price"
-                    id="price"
-                    className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
-                    placeholder="0.00"
-                    aria-describedby="price-currency"
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-white sm:text-sm" id="price-currency">
-                      Days
-                    </span>
-                  </div>
-                </div>
+        <div
+          className={`flex items-center space-x-4 w-full ${
+            currentMode !== "Borrow" ? "mb-4" : ""
+          }`}
+        >
+          <div className="w-full">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium leading-6 text-gray-100"
+            >
+              Quantity
+            </label>
+            <div className="relative mt-2 rounded-md shadow-sm">
+              <input
+                type="text"
+                name="price"
+                id="price"
+                className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
+                placeholder="0.00"
+                aria-describedby="price-currency"
+              />
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-white sm:text-sm" id="price-currency">
+                  Asset A
+                </span>
               </div>
             </div>
+          </div>
+          <div className="w-full">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium leading-6 text-gray-100"
+            >
+              Duration
+            </label>
+            <div className="relative mt-2 rounded-md shadow-sm">
+              <input
+                type="text"
+                name="price"
+                id="price"
+                className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
+                placeholder="0.00"
+                aria-describedby="price-currency"
+              />
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-white sm:text-sm" id="price-currency">
+                  Days
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {currentMode == "Borrow" && (
+          <>
             <label
               htmlFor="price"
               className="block text-sm font-medium leading-6 text-gray-100 mt-4"
