@@ -35,7 +35,7 @@ const PlaceOrderCard = ({ handleClick }) => {
   );
 
   return (
-    <div className="bg-[#15191D]  p-6 rounded-md w-full flex flex-col justify-between h-full">
+    <div className="bg-[#15191db6]  p-6 rounded-md w-full flex flex-col justify-between h-full">
       <div>
         {" "}
         <div className="flex items-center justify-between mb-2">

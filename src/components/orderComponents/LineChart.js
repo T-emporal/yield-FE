@@ -27,10 +27,14 @@ export const options = {
   plugins: {
     legend: {
       position: "top",
+      display: false,
     },
     title: {
       display: true,
-
+    },
+    customCanvasBackgroundColor: {
+      color: "transparent",
+      display: false,
     },
   },
 };
@@ -50,7 +54,7 @@ export const data = {
 };
 function LineChart() {
   return (
-    <div className=" bg-[#15191D] p-6">
+    <div className="  p-6">
       <Line options={options} data={data} height={"450px"} />
     </div>
   );
