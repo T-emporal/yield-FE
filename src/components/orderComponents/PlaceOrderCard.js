@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import {
   ArrowSmallLeftIcon,
   ArrowSmallRightIcon,
+  ArrowsPointingOutIcon,
   CheckIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
@@ -23,7 +24,7 @@ const chains = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-const PlaceOrderCard = ({ handleClick }) => {
+const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
   const [collateral, setCollateral] = useState("Select Asset");
   const [quantity, setQuantity] = useState(10);
   const [duration, setDuration] = useState(10);
@@ -35,28 +36,39 @@ const PlaceOrderCard = ({ handleClick }) => {
   );
 
   return (
-    <div className="bg-[#15191db6]  p-6 rounded-md w-full flex flex-col justify-between h-full">
+    <div className="bg-[#15191db6]  py-6 rounded-md w-full flex flex-col justify-between h-full">
       <div>
         {" "}
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xl font-bold text-white">Place Order</span>
+        <div className="flex items-center justify-between mb-2 px-6">
+          <span className="text-xl font-bold text-white uppercase">
+            Place Order
+          </span>
           <span
             className="-rotate-45 flex items-center cursor-pointer"
             onClick={handleClick}
           >
-            <ArrowSmallRightIcon
-              strokeWidth={3}
-              className="w-3 h-3 text-white"
-            />
-            <ArrowSmallLeftIcon
-              strokeWidth={3}
-              className="w-3 h-3 text-white"
-            />
+            {!yieldGraphOpen ? (
+              <ArrowsPointingOutIcon
+                strokeWidth={1.5}
+                className="w-5 h-5 text-white rotate-45"
+              />
+            ) : (
+              <>
+                <ArrowSmallRightIcon
+                  strokeWidth={3}
+                  className="w-3 h-3 text-white"
+                />
+                <ArrowSmallLeftIcon
+                  strokeWidth={3}
+                  className="w-3 h-3 text-white"
+                />
+              </>
+            )}
           </span>
         </div>
         <div className="border-b-[0.5px] border-gray-700">
           <nav
-            className=" flex space-x-8 items-center justify-around"
+            className=" grid grid-cols-3 justify-items-center"
             aria-label="Tabs"
           >
             {tabs.map((tab) => (
@@ -69,7 +81,7 @@ const PlaceOrderCard = ({ handleClick }) => {
                   tab.name == currentMode
                     ? "border-temporal text-temporal"
                     : "border-transparent text-white hover:border-gray-300 ",
-                  "whitespace-nowrap border-b-2 py-2 px-1 text-xl font-light uppercase cursor-pointer"
+                  "whitespace-nowrap border-b-2 py-2 px-1 text-xl block w-full text-center font-light uppercase cursor-pointer"
                 )}
                 aria-current={tab.current ? "page" : undefined}
               >
@@ -143,7 +155,7 @@ const PlaceOrderCard = ({ handleClick }) => {
           </div>
         </Listbox>
         <div
-          className={`flex items-center space-x-4 w-full ${
+          className={`flex items-center space-x-4 w-full px-16 ${
             currentMode !== "Borrow" ? "mb-4" : ""
           }`}
         >
@@ -159,15 +171,10 @@ const PlaceOrderCard = ({ handleClick }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
+                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal "
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <span className="text-white sm:text-sm" id="price-currency">
-                  Asset A
-                </span>
-              </div>
             </div>
           </div>
           <div className="w-full">
@@ -182,7 +189,7 @@ const PlaceOrderCard = ({ handleClick }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal placeholder:text-gray-200 focus:ring-temporal "
+                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal "
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -195,7 +202,7 @@ const PlaceOrderCard = ({ handleClick }) => {
           </div>
         </div>
         {currentMode == "Borrow" && (
-          <>
+          <div className="px-16">
             <label
               htmlFor="price"
               className="block text-sm font-medium leading-6 text-gray-100 mt-4"
@@ -208,7 +215,7 @@ const PlaceOrderCard = ({ handleClick }) => {
               className="mb-4 mt-2"
             >
               <div className="relative my-4">
-                <Listbox.Button className="relative  border border-temporal w-full cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
+                <Listbox.Button className="relative  border border-temporal50 w-full cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
                   <span className=" truncate flex items-center text-white">
                     <img
                       alt={selectedChainCollateral.name}
@@ -297,14 +304,14 @@ const PlaceOrderCard = ({ handleClick }) => {
                 className="w-full"
               />
             </div>
-          </>
+          </div>
         )}
-        <div className="mb-4 bg-[#036B681A] border border-temporal py-2 px-4">
+        <div className="mb-4 bg-[#036B681A] border border-temporal50 py-2 px-4 mx-16 rounded-[3px]">
           <div className="text-white text-sm">Estimated Yield:</div>
           <div className="text-temporal text-xl">{collateralLevel}%</div>
         </div>
       </div>
-      <button className="w-full py-2 bg-temporal text-white rounded-md">
+      <button className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]">
         ORDER
       </button>
     </div>

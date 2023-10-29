@@ -52,7 +52,7 @@ export const data = {
 function YieldCurveCard() {
   return (
     <div className=" h-full bg-[#15191db6] p-6">
-      <span className="text-xl font-bold text-white">Yield Curve</span>
+      <span className="text-xl font-bold text-white uppercase">Yield Curve</span>
       <LineChart />
     </div>
   );

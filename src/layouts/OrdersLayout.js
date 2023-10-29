@@ -5,15 +5,17 @@ import React, { useState } from "react";
 function OrdersLayout() {
   const [move, setMove] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
+  const [yieldGraphOpen, setYieldGraphOpen] = useState(false);
   const handleClick = () => {
     setMove(!move);
     setFadeIn(!fadeIn);
+    setYieldGraphOpen(!yieldGraphOpen);
   };
 
   return (
     <div className="flex flex-col items-center space-y-3 w-full mt-20">
       <div
-        className={`border border-[#395251] flex items-center space-x-12 pl-16  w-full bg-[#15191db6] py-4 opacity-0 ${
+        className={`border border-[#395251] flex items-center space-x-60 pl-16  w-full bg-[#15191db6] py-4 opacity-0 ${
           fadeIn ? "opacity-100" : ""
         } transition-opacity duration-500 ease-in-out z-10`}
       >
@@ -43,7 +45,10 @@ function OrdersLayout() {
             move ? "translate-x-0" : "translate-x-[65%]"
           } transition-transform duration-500 ease-in-out z-20`}
         >
-          <PlaceOrderCard handleClick={handleClick} />
+          <PlaceOrderCard
+            handleClick={handleClick}
+            yieldGraphOpen={yieldGraphOpen}
+          />
         </div>
         <div
           className={`border border-[#395251] opacity-0 ${
