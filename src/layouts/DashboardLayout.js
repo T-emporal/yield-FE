@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+
 const navigation = [
   {
     name: "Markets",
@@ -36,7 +37,7 @@ function DashboardLayout({ children, activePage }) {
       <header className="flex items-center justify-between">
         <div className="flex items-center ">
           <img
-            src="./TemporalLogoSmall.svg"
+            src={"/TemporalLogoSmall.svg"}
             alt="Temporal Logo"
             className="ml-16"
           />
@@ -67,7 +68,7 @@ function DashboardLayout({ children, activePage }) {
           Connect Wallet
         </button>
       </header>
-      <section className="max-w-[1440px] mx-auto">{children}</section>
+      <section className="max-w-[1280px] mx-auto">{children}</section>
       <footer></footer>
     </main>
   );
