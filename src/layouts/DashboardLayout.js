@@ -31,7 +31,7 @@ const navigation = [
 function DashboardLayout({ children, activePage }) {
   return (
     <main
-      style={{ backgroundImage: 'url("/Markets.jpg")' }}
+      style={{ backgroundImage: 'url("/BG.png")' }}
       className="bg-cover h-screen w-screen pt-[40px]"
     >
       <header className="flex items-center justify-between">
@@ -46,7 +46,9 @@ function DashboardLayout({ children, activePage }) {
               key={singleNav.href}
               href={singleNav.href}
               className={`flex items-center ml-[52px] ${
-                singleNav.name == activePage ? "text-[#0ABAB5]" : "text-white"
+                singleNav.name == activePage
+                  ? "text-[#0ABAB5]"
+                  : "text-[#f2f2f2]"
               }`}
             >
               <img
@@ -68,7 +70,7 @@ function DashboardLayout({ children, activePage }) {
           Connect Wallet
         </button>
       </header>
-      <section className="max-w-[1280px] mx-auto">{children}</section>
+      <section className="max-w-[95vw] mx-auto">{children}</section>
       <footer></footer>
     </main>
   );

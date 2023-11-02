@@ -4,7 +4,7 @@ import React from "react";
 function PositionsLayout({ children, activePage }) {
   return (
     <div className="w-full h-full relative">
-      <div className="flex items-center space-x-6 absolute top-0 left-0 text-white ">
+      <div className="flex items-center space-x-6 absolute top-0 left-[300px] text-[#f2f2f2] ">
         <Link
           href={"/positions"}
           className={`${activePage == "positions" ? "text-temporal" : ""}`}

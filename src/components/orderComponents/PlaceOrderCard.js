@@ -36,11 +36,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
   );
 
   return (
-    <div className="bg-[#15191db6]  py-6 rounded-md w-full flex flex-col justify-between h-full">
+    <div className="bg-[#15191ddf] backdrop-blur-[2px] py-6 rounded-md w-full flex flex-col justify-between h-full">
       <div>
         {" "}
-        <div className="flex items-center justify-between mb-2 px-6">
-          <span className="text-xl font-bold text-white uppercase">
+        <div className="flex items-center justify-between mb-4 px-6">
+          <span className="text-xl font-bold text-[#f2f2f2] uppercase">
             Place Order
           </span>
           <span
@@ -50,17 +50,17 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
             {!yieldGraphOpen ? (
               <ArrowsPointingOutIcon
                 strokeWidth={1.5}
-                className="w-5 h-5 text-white rotate-45"
+                className="w-5 h-5 text-[#f2f2f2] rotate-45"
               />
             ) : (
               <>
                 <ArrowSmallRightIcon
                   strokeWidth={3}
-                  className="w-3 h-3 text-white"
+                  className="w-3 h-3 text-[#f2f2f2]"
                 />
                 <ArrowSmallLeftIcon
                   strokeWidth={3}
-                  className="w-3 h-3 text-white"
+                  className="w-3 h-3 text-[#f2f2f2]"
                 />
               </>
             )}
@@ -80,8 +80,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 className={classNames(
                   tab.name == currentMode
                     ? "border-temporal text-temporal"
-                    : "border-transparent text-white hover:border-gray-300 ",
-                  "whitespace-nowrap border-b-2 py-2 px-1 text-xl block w-full text-center font-light uppercase cursor-pointer"
+                    : "border-transparent text-[#f2f2f2] hover:border-gray-300 ",
+                  "whitespace-nowrap border-b-2 py-2 px-1 text-xl block w-full text-center font-normal uppercase cursor-pointer"
                 )}
                 aria-current={tab.current ? "page" : undefined}
               >
@@ -97,7 +97,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
         >
           <div className="relative my-4">
             <Listbox.Button className="relative w-[150px] left-[50%] -translate-x-[50%] cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
-              <span className=" truncate flex items-center text-white">
+              <span className=" truncate flex items-center text-[#f2f2f2]">
                 <img
                   alt={selectedChain.name}
                   src={selectedChain.icon}
@@ -123,8 +123,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                   <Listbox.Option
                     key={chainIdx}
                     className={({ active }) =>
-                      `relative text-white cursor-default select-none py-2  px-4 ${
-                        active ? "bg-gray-700 text-white" : "text-white"
+                      `relative text-[#f2f2f2] cursor-default select-none py-2  px-4 ${
+                        active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"
                       }`
                     }
                     value={chain}
@@ -155,7 +155,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           </div>
         </Listbox>
         <div
-          className={`flex items-center space-x-4 w-full px-16 ${
+          className={`flex items-center space-x-4 w-full px-6 2xl:px-16 ${
             currentMode !== "Borrow" ? "mb-4" : ""
           }`}
         >
@@ -171,7 +171,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal "
+                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -189,12 +189,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-white ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal "
+                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <span className="text-white sm:text-sm" id="price-currency">
+                <span className="text-[#f2f2f2] sm:text-sm" id="price-currency">
                   Days
                 </span>
               </div>
@@ -202,7 +202,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           </div>
         </div>
         {currentMode == "Borrow" && (
-          <div className="px-16">
+          <div className=" px-6 2xl:px-16 ">
             <label
               htmlFor="price"
               className="block text-sm font-medium leading-6 text-gray-100 mt-4"
@@ -215,8 +215,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
               className="mb-4 mt-2"
             >
               <div className="relative my-4">
-                <Listbox.Button className="relative  border border-temporal50 w-full cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
-                  <span className=" truncate flex items-center text-white">
+                <Listbox.Button className="relative  border border-temporal50 w-full cursor-default rounded-[4px]  py-2 pl-3 pr-10 text-left bg-[#01080c] ">
+                  <span className=" truncate flex items-center text-[#f2f2f2]">
                     <img
                       alt={selectedChainCollateral.name}
                       src={selectedChainCollateral.icon}
@@ -242,8 +242,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                       <Listbox.Option
                         key={chainIdx}
                         className={({ active }) =>
-                          `relative text-white cursor-default select-none py-2  px-4 ${
-                            active ? "bg-gray-700 text-white" : "text-white"
+                          `relative text-[#f2f2f2] cursor-default select-none py-2  px-4 ${
+                            active
+                              ? "bg-gray-700 text-[#f2f2f2]"
+                              : "text-[#f2f2f2]"
                           }`
                         }
                         value={chain}
@@ -301,13 +303,13 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 max="300"
                 value={collateralLevel}
                 onChange={(e) => setCollateralLevel(e.target.value)}
-                className="w-full"
+                className="w-full "
               />
             </div>
           </div>
         )}
-        <div className="mb-4 bg-[#036B681A] border border-temporal50 py-2 px-4 mx-16 rounded-[3px]">
-          <div className="text-white text-sm">Estimated Yield:</div>
+        <div className="mb-4 bg-[#036B681A] border border-temporal50 py-2 px-4 mx-6 2xl:mx-16 rounded-[3px]">
+          <div className="text-[#f2f2f2] text-sm">Estimated Yield:</div>
           <div className="text-temporal text-xl">{collateralLevel}%</div>
         </div>
       </div>

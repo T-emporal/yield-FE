@@ -30,8 +30,8 @@ function Orders() {
               principal: "1000",
               "Edit/Cancel Order": (
                 <div className="flex items-center space-x-3">
-                  <PencilSquareIcon className="w-5 h-5 text-white cursor-pointer" />
-                  <XCircleIcon className="w-5 h-5 text-white cursor-pointer" />
+                  <PencilSquareIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
+                  <XCircleIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
                 </div>
               ),
             },
@@ -53,8 +53,8 @@ function Orders() {
               principal: "1000",
               "Edit/Cancel Order": (
                 <div className="flex items-center space-x-3">
-                  <PencilSquareIcon className="w-5 h-5 text-white cursor-pointer" />
-                  <XCircleIcon className="w-5 h-5 text-white cursor-pointer" />
+                  <PencilSquareIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
+                  <XCircleIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
                 </div>
               ),
             },
@@ -76,8 +76,8 @@ function Orders() {
               principal: "1000",
               "Edit/Cancel Order": (
                 <div className="flex items-center space-x-3">
-                  <PencilSquareIcon className="w-5 h-5 text-white cursor-pointer" />
-                  <XCircleIcon className="w-5 h-5 text-white cursor-pointer" />
+                  <PencilSquareIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
+                  <XCircleIcon className="w-5 h-5 text-[#f2f2f2] cursor-pointer" />
                 </div>
               ),
             },
