@@ -36,11 +36,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
   );
 
   return (
-    <div className="bg-[#15191ddf] backdrop-blur-[2px] py-6 rounded-md w-full flex flex-col justify-between h-full">
+    <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-md w-full flex flex-col xl:justify-between h-full">
       <div>
         {" "}
-        <div className="flex items-center justify-between mb-4 px-6">
-          <span className="text-xl font-bold text-[#f2f2f2] uppercase">
+        <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
+          <span className="text-md xl:text-xl font-bold text-[#f2f2f2] uppercase">
             Place Order
           </span>
           <span
@@ -81,7 +81,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                   tab.name == currentMode
                     ? "border-temporal text-temporal"
                     : "border-transparent text-[#f2f2f2] hover:border-gray-300 ",
-                  "whitespace-nowrap border-b-2 py-2 px-1 text-xl block w-full text-center font-normal uppercase cursor-pointer"
+                  "whitespace-nowrap border-b-2 py-2 px-1 text-md xl:text-xl block w-full text-center font-normal uppercase cursor-pointer"
                 )}
                 aria-current={tab.current ? "page" : undefined}
               >
@@ -93,7 +93,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
         <Listbox
           value={selectedChain}
           onChange={setSelectedChain}
-          className="my-4"
+          className="my-2 xl:my-4"
         >
           <div className="relative my-4">
             <Listbox.Button className="relative w-[150px] left-[50%] -translate-x-[50%] cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
@@ -162,16 +162,16 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           <div className="w-full">
             <label
               htmlFor="price"
-              className="block text-sm font-medium leading-6 text-gray-100"
+              className="block text-xs xl:text-sm font-medium leading-6 text-gray-100"
             >
               Quantity
             </label>
-            <div className="relative mt-2 rounded-md shadow-sm">
+            <div className="relative mt-1 xl:mt-2 rounded-md shadow-sm">
               <input
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
+                className="block w-full bg-transparent rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -180,16 +180,16 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           <div className="w-full">
             <label
               htmlFor="price"
-              className="block text-sm font-medium leading-6 text-gray-100"
+              className="block text-xs xl:text-sm font-medium leading-6 text-gray-100"
             >
               Duration
             </label>
-            <div className="relative mt-2 rounded-md shadow-sm">
+            <div className="relative mt-1 xl:mt-2 rounded-md shadow-sm">
               <input
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
+                className="block w-full bg-transparent rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -205,18 +205,18 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           <div className=" px-6 2xl:px-16 ">
             <label
               htmlFor="price"
-              className="block text-sm font-medium leading-6 text-gray-100 mt-4"
+              className="block text-xs xl:text-sm font-medium leading-6 text-gray-100 mt-4"
             >
               Collateral Assets
             </label>
             <Listbox
               value={selectedChainCollateral}
               onChange={setSelectedChainCollateral}
-              className="mb-4 mt-2"
+              className="mb-2 mt-1 xl:mb-4 xl:mt-2"
             >
               <div className="relative my-4">
-                <Listbox.Button className="relative  border border-temporal50 w-full cursor-default rounded-[4px]  py-2 pl-3 pr-10 text-left bg-[#01080c] ">
-                  <span className=" truncate flex items-center text-[#f2f2f2]">
+                <Listbox.Button className="relative  border border-temporal50 w-full cursor-default rounded-[4px]  py-1 xl:py-2 pl-3 pr-10 text-left bg-[#01080c] ">
+                  <span className=" truncate flex text-sm xl:text-md items-center text-[#f2f2f2]">
                     <img
                       alt={selectedChainCollateral.name}
                       src={selectedChainCollateral.icon}
@@ -242,7 +242,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                       <Listbox.Option
                         key={chainIdx}
                         className={({ active }) =>
-                          `relative text-[#f2f2f2] cursor-default select-none py-2  px-4 ${
+                          `relative text-[#f2f2f2] cursor-default select-none py-2 text-sm xl:text-md px-4 ${
                             active
                               ? "bg-gray-700 text-[#f2f2f2]"
                               : "text-[#f2f2f2]"
@@ -279,7 +279,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
             </Listbox>
             <label
               htmlFor="price"
-              className="block text-sm font-medium leading-6 text-gray-100 mt-4 mb-3"
+              className="block text-xs xl:text-sm font-medium leading-6 text-gray-100 mt-2 mb-1.5 xl:mt-4 xl:mb-3"
             >
               Collateral Level
             </label>
@@ -309,8 +309,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           </div>
         )}
         <div className="mb-4 bg-[#036B681A] border border-temporal50 py-2 px-4 mx-6 2xl:mx-16 rounded-[3px]">
-          <div className="text-[#f2f2f2] text-sm">Estimated Yield:</div>
-          <div className="text-temporal text-xl">{collateralLevel}%</div>
+          <div className="text-[#f2f2f2] text-xs xl:text-sm">Estimated Yield:</div>
+          <div className="text-temporal text-md xl:text-xl">{collateralLevel}%</div>
         </div>
       </div>
       <button className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]">

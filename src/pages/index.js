@@ -37,7 +37,7 @@ function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
 export default function Home() {
   return (
     <DashboardLayout activePage={"Markets"}>
-      <section className="grid grid-cols-3 gap-[67px] mt-[80px]">
+      <section className="grid grid-cols-3 gap-[67px] mt-[80px] mx-auto max-w-[1280px]">
         <SingleTokenCard
           gradient={
             "linear-gradient(180deg, rgba(0, 114, 110, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"

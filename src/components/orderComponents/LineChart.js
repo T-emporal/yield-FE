@@ -55,7 +55,12 @@ export const data = {
 function LineChart() {
   return (
     <div className="  p-6">
-      <Line options={options} data={data} height={"450px"} />
+      <Line
+        options={options}
+        data={data}
+        // height={"450px"}
+        className="h-[400px] xl:h-[450px] !w-full"
+      />
     </div>
   );
 }

@@ -24,7 +24,7 @@ function PositionsLayout({ children, activePage }) {
           ORDERS
         </Link>
       </div>
-      <div className="pt-20">{children}</div>
+      <div className="pt-16 xl:pt-20">{children}</div>
     </div>
   );
 }
