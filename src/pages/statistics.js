@@ -11,7 +11,7 @@ function statistics() {
         style={{ gridTemplateColumns: "2fr 1fr" }}
       >
         <div
-          className="p-4 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4 rounded-[4px] backdrop-blur-[2px]"
+          className="p-4 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4 rounded-[4px] backdrop-blur-[2px]  h-[600px] pb-20"
           style={{
             background:
               "radial-gradient(44.09% 44.09% at 50% 50%, rgba(20, 32, 36, 0.75) 0%, rgba(21, 24, 29, 0.75) 100%)",
@@ -23,7 +23,7 @@ function statistics() {
           <StateDuration />
         </div>
         <div
-          className="p-4 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4 rounded-[4px] backdrop-blur-[2px]"
+          className="p-4 pb-20 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4 rounded-[4px] backdrop-blur-[2px] h-[600px]"
           style={{
             background:
               "radial-gradient(44.09% 44.09% at 50% 50%, rgba(20, 32, 36, 0.75) 0%, rgba(21, 24, 29, 0.75) 100%)",

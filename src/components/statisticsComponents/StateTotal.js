@@ -65,7 +65,14 @@ export const data = {
   ],
 };
 function StateTotal() {
-  return <Chart type="bar" data={data} />;
+  return (
+    <Chart
+      type="bar"
+      options={{ maintainAspectRatio: false }}
+      data={data}
+      className="h-full w-full"
+    />
+  );
 }
 
 export default StateTotal;
