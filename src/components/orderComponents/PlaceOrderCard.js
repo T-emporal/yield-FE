@@ -8,9 +8,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 const tabs = [
-  { name: "Borrow", href: "#", current: false },
-  { name: "Lend", href: "#", current: false },
-  { name: "Earn", href: "#", current: true },
+  { name: "Borrow", href: "#", current: false, lineColor: "#BF71DF" },
+  { name: "Lend", href: "#", current: false, lineColor: "#E86B3A" },
+  { name: "Earn", href: "#", current: false, lineColor: "#0EE29B" },
 ];
 const chains = [
   { name: "INJ", icon: "./logo_injective.svg" },
@@ -24,7 +24,7 @@ const chains = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
+const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   const [collateral, setCollateral] = useState("Select Asset");
   const [quantity, setQuantity] = useState(10);
   const [duration, setDuration] = useState(10);
@@ -76,6 +76,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 key={tab.name}
                 onClick={() => {
                   setCurrentMode(tab.name);
+                  setLineColor(tab.lineColor);
                 }}
                 className={classNames(
                   tab.name == currentMode
@@ -171,7 +172,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
+                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -189,7 +190,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full bg-transparent rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
+                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
                 placeholder="0.00"
                 aria-describedby="price-currency"
               />
@@ -309,8 +310,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen }) => {
           </div>
         )}
         <div className="mb-4 bg-[#036B681A] border border-temporal50 py-2 px-4 mx-6 2xl:mx-16 rounded-[3px]">
-          <div className="text-[#f2f2f2] text-xs xl:text-sm">Estimated Yield:</div>
-          <div className="text-temporal text-md xl:text-xl">{collateralLevel}%</div>
+          <div className="text-[#f2f2f2] text-xs xl:text-sm">
+            Estimated Yield:
+          </div>
+          <div className="text-temporal text-md xl:text-xl">
+            {collateralLevel}%
+          </div>
         </div>
       </div>
       <button className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]">

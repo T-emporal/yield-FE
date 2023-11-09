@@ -6,6 +6,7 @@ function OrdersLayout() {
   const [move, setMove] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
   const [yieldGraphOpen, setYieldGraphOpen] = useState(false);
+  const [lineColor, setLineColor] = useState("#BF71DF");
   const handleClick = () => {
     setMove(!move);
     setFadeIn(!fadeIn);
@@ -50,6 +51,7 @@ function OrdersLayout() {
           <PlaceOrderCard
             handleClick={handleClick}
             yieldGraphOpen={yieldGraphOpen}
+            setLineColor={setLineColor}
           />
         </div>
         <div
@@ -57,7 +59,7 @@ function OrdersLayout() {
             fadeIn ? "opacity-100" : ""
           } transition-opacity duration-[700ms] ease-in-out z-10`}
         >
-          <YieldCurveCard />
+          <YieldCurveCard lineColor={lineColor} />
         </div>
       </div>
     </div>

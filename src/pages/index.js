@@ -40,7 +40,7 @@ export default function Home() {
       <section className="grid grid-cols-3 gap-[67px] mt-[80px] mx-auto max-w-[1280px]">
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(0, 114, 110, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(0, 114, 110, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="INJ"
           tokenYield="7.35%"
@@ -48,7 +48,7 @@ export default function Home() {
         />
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(71, 84, 209, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(71, 84, 209, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="ATOM"
           tokenYield="4.73%"
@@ -56,7 +56,7 @@ export default function Home() {
         />
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(174, 74, 140, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(174, 74, 140, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="OSMO"
           tokenYield="7.35%"
@@ -64,7 +64,7 @@ export default function Home() {
         />
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(122, 122, 122, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(122, 122, 122, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="stETH"
           tokenYield="4.56%"
@@ -72,7 +72,7 @@ export default function Home() {
         />
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(0, 114, 110, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(0, 114, 110, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="USDT"
           tokenYield="3.72%"
@@ -80,7 +80,7 @@ export default function Home() {
         />
         <SingleTokenCard
           gradient={
-            "linear-gradient(180deg, rgba(120, 73, 199, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.45)"
+            "linear-gradient(180deg, rgba(120, 73, 199, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(12, 12, 12, 0.55)"
           }
           token="wMATIC"
           tokenYield="6.84%"
