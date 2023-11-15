@@ -61,7 +61,23 @@ export const data = {
   ],
 };
 function StateDuration() {
-  return <Chart type="bar" data={data} />;
+  return (
+    <Chart
+      height={80}
+      type="bar"
+      data={data}
+      options={{
+        scales: {
+          y: {
+            stackWeight: 1,
+            ticks: { color: "#fff" },
+            alignToPixels: true,
+            angleLines: true,
+          },
+        },
+      }}
+    />
+  );
 }
 
 export default StateDuration;

@@ -11,7 +11,7 @@ function TableContainer({ data, title }) {
       }}
     >
       <div className="w-full flex items-center justify-between">
-        <span className="text-[#f2f2f2] font-bold uppercase text-lg block mb-3 xl:mb-4">
+        <span className="text-[#f2f2f2] font-semibold uppercase text-lg block mb-3 xl:mb-4">
           {title}
         </span>
         <p className="flex items-center text-white">

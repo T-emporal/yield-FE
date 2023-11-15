@@ -108,7 +108,7 @@ function DashboardLayout({ children, activePage }) {
             <Link
               key={singleNav.href}
               href={singleNav.href}
-              className={`flex items-center ml-[52px] ${
+              className={`flex items-center uppercase ml-[52px] ${
                 singleNav.name == activePage
                   ? "text-[#0ABAB5]"
                   : "text-[#f2f2f2]"
