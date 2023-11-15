@@ -40,7 +40,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       <div>
         {" "}
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
-          <span className="text-lg xl:text-xl font-bold text-[#f2f2f2] uppercase">
+          <span className="text-[16px] xl:text-lg font-bold text-[#f2f2f2] uppercase">
             Place Order
           </span>
           <span
