@@ -95,7 +95,7 @@ function DashboardLayout({ children, activePage }) {
   return (
     <main
       style={{ backgroundImage: 'url("/BG.png")' }}
-      className="bg-cover h-screen w-screen pt-[40px]"
+      className="bg-cover h-screen w-screen pt-[20px] bg-fixed overflow-y-scroll pb-12"
     >
       <header className="flex items-center justify-between">
         <div className="flex items-center ">

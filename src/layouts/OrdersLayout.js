@@ -14,7 +14,7 @@ function OrdersLayout() {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-3 w-full xl:mt-8 2xl:mt-20 xl:scale-[0.85]">
+    <div className="flex flex-col items-center space-y-3 w-full xl:mt-8 2xl:mt-20 ">
       {/* <div
         className={`border border-[#395251] backdrop-blur-[2px] flex items-center space-x-60 pl-16  w-full bg-[#15191ddf] py-4 opacity-0 ${
           fadeIn ? "opacity-100" : ""
