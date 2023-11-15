@@ -36,7 +36,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   );
 
   return (
-    <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-md w-full flex flex-col xl:justify-between h-full">
+    <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-md w-full flex flex-col xl:justify-between h-full min-h-[600px]">
       <div>
         {" "}
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
