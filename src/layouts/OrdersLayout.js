@@ -15,7 +15,7 @@ function OrdersLayout() {
 
   return (
     <div className="flex flex-col items-center space-y-3 w-full xl:mt-8 2xl:mt-20 ">
-      <div
+      {/* <div
         className={`border border-[#395251] backdrop-blur-[2px] flex items-center space-x-60 pl-16  w-full bg-[#15191ddf] py-4 opacity-0 ${
           fadeIn ? "opacity-100" : ""
         } transition-opacity duration-[700ms] ease-in-out z-10`}
@@ -38,7 +38,7 @@ function OrdersLayout() {
           </span>
           <span className="text-sm text-[#0ABAB5]">824,6969</span>
         </div>
-      </div>
+      </div> */}
       <div
         className="grid space-x-3 w-full"
         style={{ gridTemplateColumns: "600px 1fr" }}

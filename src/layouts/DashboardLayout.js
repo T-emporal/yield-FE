@@ -29,6 +29,69 @@ const navigation = [
   },
 ];
 function DashboardLayout({ children, activePage }) {
+  async function getKeplr() {
+    if (!window.keplr) {
+      alert("Please install Keplr extension");
+      return;
+    }
+
+    await window.keplr.enable("injective-888"); // Example: Enable the Cosmos Hub chain
+    const keplr = window.keplr;
+    return keplr;
+  }
+  async function connectWallet() {
+    const keplr = await getKeplr();
+    if (!keplr) return;
+
+    const chainId = "injective-888";
+
+    const offlineSigner = keplr.getOfflineSigner(chainId);
+    const accounts = await offlineSigner.getAccounts();
+    console.log({ keplr, accounts });
+    return { keplr, accounts };
+  }
+  async function sendTransaction(
+    senderAddress,
+    recipientAddress,
+    amount,
+    memo
+  ) {
+    try {
+      const keplr = await getKeplr();
+      if (!keplr) return;
+
+      const chainId = "injective-888";
+      const offlineSigner = keplr.getOfflineSigner(chainId);
+      const accounts = await offlineSigner.getAccounts();
+
+      const cosmos = new CosmJS.Cosmos(offlineSigner, chainId);
+
+      const msgSend = {
+        type: "cosmos-sdk/MsgSend",
+        value: {
+          from_address: senderAddress,
+          to_address: recipientAddress,
+          amount: [{ denom: "inj", amount: String(amount) }],
+        },
+      };
+
+      const fee = {
+        amount: [{ denom: "inj", amount: "5000" }],
+        gas: "200000",
+      };
+
+      const { included } = await cosmos.sendTx({
+        msgs: [msgSend],
+        fee: fee,
+        memo: memo,
+      });
+
+      console.log("Transaction included in a block:", included);
+    } catch (error) {
+      console.error("Error in sendTransaction:", error);
+    }
+  }
+
   return (
     <main
       style={{ backgroundImage: 'url("/BG.png")' }}
@@ -64,7 +127,7 @@ function DashboardLayout({ children, activePage }) {
           ))}
         </div>
         <button
-          // onClick={toggleModal}
+          onClick={connectWallet}
           className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
         >
           Connect Wallet
