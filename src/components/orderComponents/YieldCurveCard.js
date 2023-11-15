@@ -52,7 +52,7 @@ export const data = {
 function YieldCurveCard({ lineColor }) {
   return (
     <div className=" h-full bg-[#15191ddf] backdrop-blur-[2px] p-6">
-      <span className="text-xl font-bold text-[#f2f2f2] uppercase">
+      <span className="text-lg font-bold text-[#f2f2f2] uppercase">
         Yield Curve
       </span>
       <LineChart lineColor={lineColor} />

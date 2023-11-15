@@ -46,7 +46,7 @@ function OrdersLayout() {
         <div
           className={`border border-[#395251] transform ${
             move ? "translate-x-0" : "translate-x-[calc(50vw-350px)]"
-          } transition-transform duration-[700ms] ease-in-out z-20`}
+          } transition-transform duration-[700ms] ease-in-out z-20 rounded-[2px]`}
         >
           <PlaceOrderCard
             handleClick={handleClick}
@@ -57,7 +57,7 @@ function OrdersLayout() {
         <div
           className={`border border-[#395251] opacity-0 ${
             fadeIn ? "opacity-100" : ""
-          } transition-opacity duration-[700ms] ease-in-out z-10`}
+          } transition-opacity duration-[700ms] ease-in-out z-10 rounded-[2px]`}
         >
           <YieldCurveCard lineColor={lineColor} />
         </div>

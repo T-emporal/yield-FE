@@ -15,8 +15,8 @@ function TableContainer({ data, title }) {
           {title}
         </span>
         <p className="flex items-center text-white">
-          <span className="text-lg font-light px-1">CURRENCY:</span>
-          <span className="text-lg font-medium px-1">USD, ASSET A</span>
+          <span className="text-sm font-light px-1">CURRENCY:</span>
+          <span className="text-sm font-medium px-1">USD, ASSET A</span>
           <ChevronDownIcon width={16} />
         </p>
       </div>
