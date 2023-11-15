@@ -42,7 +42,7 @@ function statistics() {
               "radial-gradient(44.09% 44.09% at 50% 50%, rgba(20, 32, 36, 0.75) 0%, rgba(21, 24, 29, 0.75) 100%)",
           }}
         >
-          <span className="text-[#f2f2f2] font-bold uppercase text-lg block mb-3 xl:mb-4">
+          <span className="text-[#f2f2f2] font-bold uppercase text-[16px] block mb-3 xl:mb-4">
             AMM - STATE DURATION
           </span>
           <StateDuration />
