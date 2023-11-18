@@ -1,8 +1,9 @@
 import { CosmosClient } from "@cosmjs/launchpad";
+import { StargateClient, SigningStargateClient } from "@cosmjs/stargate";
 import Link from "next/link";
 import React, { useState } from "react";
 import Web3 from "web3";
-import { SigningStargateClient } from "@cosmjs/stargate";
+// import { SigningStargateClient } from "@cosmjs/stargate";
 
 let testWalletAddr = "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e";
 
@@ -156,7 +157,11 @@ function DashboardLayout({ children, activePage }) {
       console.error("Error in sendTransaction:", error);
     }
   }
-
+  async function connectClient() {
+    const client = await SigningStargateClient.connect(rpcEndpoint);
+    // client.broadcastTx();
+    client.console.log(await client.getChainId());
+  }
   async function sendTransactionStargate(recipientAddress, amount, memo = "") {
     if (!window.keplr) {
       alert("Please install Keplr extension");
@@ -175,35 +180,46 @@ function DashboardLayout({ children, activePage }) {
         rpcEndpoint,
         offlineSigner
       );
-
+      client.signAndBroadcast;
       // Get the sender's address from the offline signer
       const [firstAccount] = await offlineSigner.getAccounts();
       const senderAddress = firstAccount.address;
+      console.log("client", senderAddress);
 
       // Define the message for sending tokens
       const msg = {
         typeUrl: "/cosmos.bank.v1beta1.MsgSend",
         value: {
           fromAddress: senderAddress,
-          toAddress: recipientAddress,
-          amount: [{ denom: "INJ", amount: String(amount) }], // Replace 'INJ' with the token denomination
+          toAddress: testWalletAddr,
+          amount: [{ denom: "uinj", amount: `${amount}` }], // Replace 'INJ' with the token denomination
         },
       };
 
       // Define fee
       const fee = {
-        amount: [{ denom: "INJ", amount: "2000" }], // Replace 'INJ' with the fee denomination
+        amount: [{ denom: "uinj", amount: "500" }], // Replace 'INJ' with the fee denomination
         gas: "200000", // Adjust the gas limit according to your needs
       };
-
-      // Broadcast the transaction
-      const result = await client.signAndBroadcast(
-        senderAddress,
-        [msg],
-        fee,
-        memo
+      console.log(
+        await client.sendTokens(
+          senderAddress,
+          testWalletAddr,
+          [{ denom: "uinj", amount: "1" }],
+          {
+            amount: [{ denom: "uinj", amount: "500" }],
+            gas: "200000",
+          }
+        )
       );
-      console.log("Transaction result:", result);
+      // Broadcast the transaction
+      // const result = await client.signAndBroadcast(
+      //   senderAddress,
+      //   [msg],
+      //   fee,
+      //   memo
+      // );
+      // console.log("Transaction result:", result);
     } catch (error) {
       console.error("Error in sendTransaction:", error);
     }
@@ -322,6 +338,7 @@ function DashboardLayout({ children, activePage }) {
             <button
               className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
               onClick={() => {
+                // connectClient();
                 sendTransactionStargate(testWalletAddr, 0.001);
                 // sendTransaction(publicAddress, testWalletAddr, 0.001, {
                 //   key: "value1",
