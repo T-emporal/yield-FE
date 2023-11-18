@@ -22,14 +22,14 @@ function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
         <p className="font-helvetica-neue mt-8 text-sm font-extralight text-[#f2f2f2]">
           Yield Upto
         </p>
-        <p className="font-helvetica-neue text-3xl text-[#0ABAB5] flex items-center justify-between">
+        <div className="font-helvetica-neue text-3xl text-[#0ABAB5] flex items-center justify-between">
           <span>{tokenYield}</span>
           <div className="text-[#f2f2f2] text-sm">
             <span className="border-r border-temporal px-2">Borrow</span>
             <span className="border-r border-temporal px-2">Lend</span>
             <span className=" px-2">Earn</span>
           </div>
-        </p>
+        </div>
       </div>
     </div>
   );

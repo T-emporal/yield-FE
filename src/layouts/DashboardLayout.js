@@ -1,7 +1,13 @@
-import Image from "next/image";
+import { CosmosClient } from "@cosmjs/launchpad";
 import Link from "next/link";
 import React, { useState } from "react";
 import Web3 from "web3";
+import { SigningStargateClient } from "@cosmjs/stargate";
+
+let testWalletAddr = "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e";
+
+const chainId = "injective-888"; // Replace with your chain ID
+const rpcEndpoint = "https://testnet.sentry.tm.injective.network:443"; // Replace with the RPC endpoint of your chain
 
 const navigation = [
   {
@@ -37,7 +43,6 @@ function DashboardLayout({ children, activePage }) {
       alert("Please install Keplr extension");
       return;
     }
-
     await window.keplr.enable("injective-888"); // Example: Enable the Cosmos Hub chain
     const keplr = window.keplr;
     return keplr;
@@ -50,9 +55,54 @@ function DashboardLayout({ children, activePage }) {
 
     const offlineSigner = keplr.getOfflineSigner(chainId);
     const accounts = await offlineSigner.getAccounts();
+    setPublicAddress(accounts[0].address);
     console.log({ keplr, accounts });
     return { keplr, accounts };
   }
+  // async function sendTransaction(
+  //   senderAddress,
+  //   recipientAddress,
+  //   amount,
+  //   memo
+  // ) {
+  //   try {
+  //     const keplr = await getKeplr();
+  //     if (!keplr) return;
+
+  //     const chainId = "injective-888";
+  //     const offlineSigner = keplr.getOfflineSigner(chainId);
+  //     const accounts = await offlineSigner.getAccounts();
+
+  //     const cosmos = new CosmosClient(
+  //       "https://testnet.sentry.tm.injective.network:443",
+  //       chainId
+  //     );
+
+  //     const msgSend = {
+  //       type: "cosmos-sdk/MsgSend",
+  //       value: {
+  //         from_address: senderAddress,
+  //         to_address: recipientAddress,
+  //         amount: [{ denom: "inj", amount: String(amount) }],
+  //       },
+  //     };
+
+  //     const fee = {
+  //       amount: [{ denom: "inj", amount: "5000" }],
+  //       gas: "200000",
+  //     };
+
+  //     const { included } = await cosmos.sendTx({
+  //       msgs: [msgSend],
+  //       fee: fee,
+  //       memo: memo,
+  //     });
+
+  //     console.log("Transaction included in a block:", included);
+  //   } catch (error) {
+  //     console.error("Error in sendTransaction:", error);
+  //   }
+  // }
   async function sendTransaction(
     senderAddress,
     recipientAddress,
@@ -60,36 +110,100 @@ function DashboardLayout({ children, activePage }) {
     memo
   ) {
     try {
-      const keplr = await getKeplr();
-      if (!keplr) return;
+      // Ensure Keplr is available
+      if (!window.keplr) {
+        alert("Please install Keplr extension");
+        return;
+      }
 
+      // Enable the Injective testnet
+      await window.keplr.enable("injective-888");
       const chainId = "injective-888";
-      const offlineSigner = keplr.getOfflineSigner(chainId);
-      const accounts = await offlineSigner.getAccounts();
+      const offlineSigner = window.keplr.getOfflineSigner(chainId);
 
-      const cosmos = new CosmJS.Cosmos(offlineSigner, chainId);
+      // Create a new signing client
+      const signingClient = await window.injective.getSigningClient({
+        rpcUrl: "https://testnet.sentry.tm.injective.network:443",
+        signer: offlineSigner,
+      });
 
-      const msgSend = {
-        type: "cosmos-sdk/MsgSend",
+      // Define transaction message
+      const msg = {
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
         value: {
-          from_address: senderAddress,
-          to_address: recipientAddress,
+          fromAddress: senderAddress,
+          toAddress: recipientAddress,
           amount: [{ denom: "inj", amount: String(amount) }],
         },
       };
 
+      // Define fee
       const fee = {
         amount: [{ denom: "inj", amount: "5000" }],
         gas: "200000",
       };
 
-      const { included } = await cosmos.sendTx({
-        msgs: [msgSend],
-        fee: fee,
+      // Broadcast the transaction
+      const response = await signingClient.sendTx({
+        chainId: chainId,
+        msgs: [msg],
         memo: memo,
+        fee: fee,
       });
 
-      console.log("Transaction included in a block:", included);
+      console.log("Transaction response:", response);
+    } catch (error) {
+      console.error("Error in sendTransaction:", error);
+    }
+  }
+
+  async function sendTransactionStargate(recipientAddress, amount, memo = "") {
+    if (!window.keplr) {
+      alert("Please install Keplr extension");
+      return;
+    }
+
+    try {
+      // Suggest/Enable the chain (if not already enabled)
+      await window.keplr.enable(chainId);
+
+      // Get Keplr's offlineSigner for the specific chain
+      const offlineSigner = window.keplr.getOfflineSigner(chainId);
+
+      // Create a Stargate client using Keplr's signer
+      const client = await SigningStargateClient.connectWithSigner(
+        rpcEndpoint,
+        offlineSigner
+      );
+
+      // Get the sender's address from the offline signer
+      const [firstAccount] = await offlineSigner.getAccounts();
+      const senderAddress = firstAccount.address;
+
+      // Define the message for sending tokens
+      const msg = {
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: {
+          fromAddress: senderAddress,
+          toAddress: recipientAddress,
+          amount: [{ denom: "INJ", amount: String(amount) }], // Replace 'INJ' with the token denomination
+        },
+      };
+
+      // Define fee
+      const fee = {
+        amount: [{ denom: "INJ", amount: "2000" }], // Replace 'INJ' with the fee denomination
+        gas: "200000", // Adjust the gas limit according to your needs
+      };
+
+      // Broadcast the transaction
+      const result = await client.signAndBroadcast(
+        senderAddress,
+        [msg],
+        fee,
+        memo
+      );
+      console.log("Transaction result:", result);
     } catch (error) {
       console.error("Error in sendTransaction:", error);
     }
@@ -196,16 +310,30 @@ function DashboardLayout({ children, activePage }) {
           ))}
         </div>
         {publicAddress ? (
-          <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]">
-            {publicAddress.slice(0, 5)}...
-            {publicAddress.slice(
-              publicAddress.length - 4,
-              publicAddress.length
-            )}
-          </button>
+          <>
+            <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]">
+              {publicAddress.slice(0, 5)}...
+              {publicAddress.slice(
+                publicAddress.length - 4,
+                publicAddress.length
+              )}
+            </button>
+
+            <button
+              className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
+              onClick={() => {
+                sendTransactionStargate(testWalletAddr, 0.001);
+                // sendTransaction(publicAddress, testWalletAddr, 0.001, {
+                //   key: "value1",
+                // });
+              }}
+            >
+              Transact
+            </button>
+          </>
         ) : (
           <button
-            onClick={connectMetaMask}
+            onClick={connectWallet}
             className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
           >
             Connect Wallet
