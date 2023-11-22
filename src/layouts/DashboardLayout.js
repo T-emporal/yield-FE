@@ -452,6 +452,7 @@ function DashboardLayout({ children, activePage }) {
                 //   key: "value1",
                 // });
                 // signMessage();
+
                 createAndSignTransaction(
                   testWalletAddr,
                   "injective-888",
