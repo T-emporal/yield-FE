@@ -26,15 +26,18 @@ function classNames(...classes) {
 }
 const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   const [collateral, setCollateral] = useState("Select Asset");
-  const [quantity, setQuantity] = useState(10);
-  const [duration, setDuration] = useState(10);
+  const [quantity, setQuantity] = useState("10");
+  const [duration, setDuration] = useState("10");
   const [currentMode, setCurrentMode] = useState("Borrow");
   const [collateralLevel, setCollateralLevel] = useState(220);
   const [selectedChain, setSelectedChain] = useState(chains[0]);
   const [selectedChainCollateral, setSelectedChainCollateral] = useState(
     chains[0]
   );
-
+  function placeBorrowOrder(quantity, duration, chain, collateral) {
+    console.log({ quantity, duration, chain, collateral });
+    return { quantity, duration, chain, collateral };
+  }
   return (
     <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-[2px] w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
       <div>
@@ -175,6 +178,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
                 placeholder="0.00"
                 aria-describedby="price-currency"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
           </div>
@@ -193,6 +198,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
                 placeholder="0.00"
                 aria-describedby="price-currency"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                 <span className="text-[#f2f2f2] sm:text-sm" id="price-currency">
@@ -318,7 +325,17 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
           </div>
         </div>
       </div>
-      <button className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]">
+      <button
+        className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]"
+        onClick={() => {
+          placeBorrowOrder(
+            quantity,
+            duration,
+            selectedChain.name,
+            selectedChainCollateral.name
+          );
+        }}
+      >
         ORDER
       </button>
     </div>
