@@ -12,6 +12,7 @@ import {
   BroadcastMode,
   createCosmosSignDocFromSignDoc,
   SIGN_DIRECT,
+  IndexerGrpcOracleApi,
 } from "@injectivelabs/sdk-ts";
 import {
   DEFAULT_STD_FEE,
@@ -65,8 +66,37 @@ function DashboardLayout({ children, activePage }) {
 
     setPublicAddress(accounts[0].address);
 
+    //const cors=require("cors");
+    //const corsOptions ={
+    //   origin:'*', 
+    //   credentials:true,            //access-control-allow-credentials:true
+    //   optionSuccessStatus:200,
+    //}
+    //
+    //app.use(cors(corsOptions))
+
+    getOraclePrice()
+
     return;
   }
+
+  async function getOraclePrice() {
+    const endpoints = getNetworkEndpoints(Network.Mainnet)
+    const indexerGrpcOracleApi = new IndexerGrpcOracleApi(endpoints.indexer)
+
+    const baseSymbol = 'INJ'
+    const quoteSymbol = 'USDT'
+    const oracleType = 'bandibc' // primary oracle we use
+    
+    const oraclePrice = await indexerGrpcOracleApi.fetchOraclePriceNoThrow({
+      baseSymbol,
+      quoteSymbol,
+      oracleType,
+    })
+    
+    console.log(oraclePrice)
+  }
+
 
   const executeTransaction = async () => {
     // Define your functions and variables here
