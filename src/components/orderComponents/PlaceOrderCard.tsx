@@ -40,13 +40,13 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     console.log({ quantity, duration, chain, collateral });
     return { quantity, duration, chain, collateral };
   }
-  function placeLendOrder(quantity, duration) {
-    console.log({ quantity, duration });
-    return { quantity, duration };
+  function placeLendOrder(quantity, duration, chain) {
+    console.log({ quantity, duration, chain });
+    return { quantity, duration, chain };
   }
-  function placeEarnOrder(quantity, duration) {
-    console.log({ quantity, duration });
-    return { quantity, duration };
+  function placeEarnOrder(quantity, duration, chain) {
+    console.log({ quantity, duration, chain });
+    return { quantity, duration, chain };
   }
   useEffect(() => {
     async function x() {
@@ -364,9 +364,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 selectedChainCollateral.name
               );
             case "Lend":
-              return placeLendOrder(quantity, duration);
+              return placeLendOrder(quantity, duration, selectedChain.name);
             case "Earn":
-              return placeEarnOrder(quantity, duration);
+              return placeEarnOrder(quantity, duration, selectedChain.name);
             default:
               break;
           }
