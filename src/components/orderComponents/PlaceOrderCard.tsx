@@ -40,13 +40,25 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     console.log({ quantity, duration, chain, collateral });
     return { quantity, duration, chain, collateral };
   }
+  function placeLendOrder(quantity, duration) {
+    console.log({ quantity, duration });
+    return { quantity, duration };
+  }
+  function placeEarnOrder(quantity, duration) {
+    console.log({ quantity, duration });
+    return { quantity, duration };
+  }
   useEffect(() => {
     async function x() {
       let price = await getOraclePrice(selectedChain.name);
       setCurrentPrice(+price * +quantity);
     }
     x();
-  }, [quantity]);
+  }, [quantity, selectedChain]);
+  useEffect(() => {
+    setQuantity("10");
+    setCurrentPrice(0);
+  }, [currentMode]);
 
   return (
     <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-[2px] w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
@@ -193,7 +205,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
               />
               {currentPrice && (
                 <span className="flex items-center w-max flex-nowrap break-keep text-white text-sm pr-4">
-                  ${currentPrice.toFixed(2) } 
+                  ${currentPrice.toFixed(2)}
                 </span>
               )}
             </div>
@@ -343,12 +355,21 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       <button
         className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]"
         onClick={() => {
-          placeBorrowOrder(
-            quantity,
-            duration,
-            selectedChain.name,
-            selectedChainCollateral.name
-          );
+          switch (currentMode) {
+            case "Borrow":
+              return placeBorrowOrder(
+                quantity,
+                duration,
+                selectedChain.name,
+                selectedChainCollateral.name
+              );
+            case "Lend":
+              return placeLendOrder(quantity, duration);
+            case "Earn":
+              return placeEarnOrder(quantity, duration);
+            default:
+              break;
+          }
         }}
       >
         ORDER
