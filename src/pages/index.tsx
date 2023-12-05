@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
@@ -25,9 +26,9 @@ function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
         <div className="font-helvetica-neue text-3xl text-[#0ABAB5] flex items-center justify-between">
           <span>{tokenYield}</span>
           <div className="text-[#f2f2f2] text-sm">
-            <span className="border-r border-temporal px-2">Borrow</span>
-            <span className="border-r border-temporal px-2">Lend</span>
-            <span className=" px-2">Earn</span>
+            <Link href={`/orders/?tab=0&chain=${token}`} className="border-r border-temporal px-2" >Borrow</Link>
+            <Link href={`/orders/?tab=1&chain=${token}`} className="border-r border-temporal px-2" >Lend</Link>
+            <Link href={`/orders/?tab=2&chain=${token}`} className=" px-2" >Earn</Link>
           </div>
         </div>
       </div>
