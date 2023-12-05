@@ -12,6 +12,7 @@ import {
   BroadcastMode,
   createCosmosSignDocFromSignDoc,
   SIGN_DIRECT,
+  IndexerGrpcOracleApi,
 } from "@injectivelabs/sdk-ts";
 import {
   DEFAULT_STD_FEE,
@@ -47,6 +48,22 @@ const navigation = [
     iconSelected: "/icon_stats_selected.svg",
   },
 ];
+export async function getOraclePrice(baseSymbol = "INJ") {
+  const endpoints = getNetworkEndpoints(Network.Mainnet);
+  const indexerGrpcOracleApi = new IndexerGrpcOracleApi(endpoints.indexer);
+
+  const quoteSymbol = "USDT";
+  const oracleType = "bandibc"; // primary oracle we use
+
+  const oraclePrice = await indexerGrpcOracleApi.fetchOraclePriceNoThrow({
+    baseSymbol,
+    quoteSymbol,
+    oracleType,
+  });
+
+  console.log("oraclePrice", oraclePrice.price);
+  return oraclePrice.price;
+}
 function DashboardLayout({ children, activePage }) {
   const [publicAddress, setPublicAddress] = useState("");
   const [txHash, setTxHash] = useState("");
@@ -64,6 +81,17 @@ function DashboardLayout({ children, activePage }) {
     if (!keplr) return;
 
     setPublicAddress(accounts[0].address);
+
+    //const cors=require("cors");
+    //const corsOptions ={
+    //   origin:'*',
+    //   credentials:true,            //access-control-allow-credentials:true
+    //   optionSuccessStatus:200,
+    //}
+    //
+    //app.use(cors(corsOptions))
+
+    // getOraclePrice();
 
     return;
   }

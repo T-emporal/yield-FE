@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   ArrowSmallLeftIcon,
   ArrowSmallRightIcon,
@@ -7,6 +7,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
+import { getOraclePrice } from "@/layouts/DashboardLayout";
 const tabs = [
   { name: "Borrow", href: "#", current: false, lineColor: "#BF71DF" },
   { name: "Lend", href: "#", current: false, lineColor: "#E86B3A" },
@@ -27,6 +28,7 @@ function classNames(...classes) {
 const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   const [collateral, setCollateral] = useState("Select Asset");
   const [quantity, setQuantity] = useState("10");
+  const [currentPrice, setCurrentPrice] = useState(0);
   const [duration, setDuration] = useState("10");
   const [currentMode, setCurrentMode] = useState("Borrow");
   const [collateralLevel, setCollateralLevel] = useState(220);
@@ -38,6 +40,26 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     console.log({ quantity, duration, chain, collateral });
     return { quantity, duration, chain, collateral };
   }
+  function placeLendOrder(quantity, duration, chain) {
+    console.log({ quantity, duration, chain });
+    return { quantity, duration, chain };
+  }
+  function placeEarnOrder(quantity, duration, chain) {
+    console.log({ quantity, duration, chain });
+    return { quantity, duration, chain };
+  }
+  useEffect(() => {
+    async function x() {
+      let price = await getOraclePrice(selectedChain.name);
+      setCurrentPrice(+price * +quantity);
+    }
+    x();
+  }, [quantity, selectedChain]);
+  useEffect(() => {
+    setQuantity("10");
+    setCurrentPrice(0);
+  }, [currentMode]);
+
   return (
     <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-[2px] w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
       <div>
@@ -170,17 +192,22 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
             >
               Quantity
             </label>
-            <div className="relative mt-1 xl:mt-2 rounded-md shadow-sm">
+            <div className="relative mt-1 xl:mt-2 rounded-md shadow-sm flex items-center ring-1 ring-inset ring-temporal50 bg-[#01080c] ">
               <input
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c] "
+                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2]  placeholder:text-gray-200 focus:ring-transparent bg-transparent "
                 placeholder="0.00"
                 aria-describedby="price-currency"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
               />
+              {currentPrice && (
+                <span className="flex items-center w-max flex-nowrap break-keep text-white text-sm pr-4">
+                  ${currentPrice.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
           <div className="w-full">
@@ -195,7 +222,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 type="text"
                 name="price"
                 id="price"
-                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal bg-[#01080c]"
+                className="block w-full  rounded-[3px] border-0 py-1 xl:py-2 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-200 focus:ring-temporal50 bg-[#01080c]"
                 placeholder="0.00"
                 aria-describedby="price-currency"
                 value={duration}
@@ -328,12 +355,21 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       <button
         className="w-[350px] mx-auto mt-2 py-2 bg-temporal text-black rounded-[4px]"
         onClick={() => {
-          placeBorrowOrder(
-            quantity,
-            duration,
-            selectedChain.name,
-            selectedChainCollateral.name
-          );
+          switch (currentMode) {
+            case "Borrow":
+              return placeBorrowOrder(
+                quantity,
+                duration,
+                selectedChain.name,
+                selectedChainCollateral.name
+              );
+            case "Lend":
+              return placeLendOrder(quantity, duration, selectedChain.name);
+            case "Earn":
+              return placeEarnOrder(quantity, duration, selectedChain.name);
+            default:
+              break;
+          }
         }}
       >
         ORDER
