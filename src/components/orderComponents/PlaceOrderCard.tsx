@@ -9,18 +9,24 @@ import {
 import { Listbox, Transition } from "@headlessui/react";
 import { getOraclePrice } from "@/layouts/DashboardLayout";
 import {
+  ChainGrpcWasmApi,
   MsgExecuteContractCompat,
-  MsgBroadcasterWithPk,
   PrivateKey,
+  getInjectiveAddress 
 } from "@injectivelabs/sdk-ts";
 import { INJ_DENOM } from "@injectivelabs/sdk-ui-ts";
-import { Network } from "@injectivelabs/networks";
+import { Network, getNetworkEndpoints } from '@injectivelabs/networks';
+import { ChainId } from "@injectivelabs/ts-types";
 
 import { BigNumberInBase } from "@injectivelabs/utils";
 import { useSearchParams } from "next/navigation";
 
-const injectiveAddress = "inj1udj57jjtd4vmp9l99v29wu75xshumvqz5vsk0c"; // Get the Address of the wallet
-const contractAddress = "cw..."; //Get Contract Address
+import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
+import { Web3Exception,
+  WalletException,
+  UnspecifiedErrorCode,
+  ErrorType } from '@injectivelabs/exceptions'
+
 const tabs = [
   { name: "Borrow", href: "0", current: false, lineColor: "#BF71DF" },
   { name: "Lend", href: "1", current: false, lineColor: "#E86B3A" },
@@ -51,8 +57,77 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     chains[0]
   );
   // console.log("params", );
-  function placeBorrowOrder(quantity, duration, chain, collateral) {
-    let { privateKey, mnemonic } = PrivateKey.generate();
+ 
+  // function placeBorrowOrder(quantity, duration, chain, collateral) {
+  //   let { privateKey, mnemonic } = PrivateKey.generate();
+  //   const msg = MsgExecuteContractCompat.fromJSON({
+  //     contractAddress,
+  //     sender: injectiveAddress,
+  //     exec: {
+  //       action: "borrow",
+  //       funds: [
+  //         {
+  //           denom: INJ_DENOM,
+  //           amount: new BigNumberInBase(quantity).toWei().toFixed(),
+  //           duration: duration,
+  //           quantity: quantity,
+  //           collateral: {
+  //             denom: INJ_DENOM,
+  //             amount: new BigNumberInBase(collateral).toWei().toFixed(),
+  //           }, //To Check
+  //         },
+  //       ],
+  //     },
+  //   });
+  //   console.log("privateKey", privateKey, mnemonic);
+  //   const txHash = new MsgBroadcasterWithPk({
+  //     privateKey, //Get this private key from wallet
+  //     network: Network.Testnet,
+  //   }).broadcast({
+  //     msgs: msg,
+  //   });
+
+  //   console.log(txHash);
+  //   console.log({ quantity, duration, chain, collateral });
+  //   return { quantity, duration, chain, collateral };
+  // }
+ 
+  async function placeBorrowOrder(quantity, duration, chain, collateral) {
+    console.log({ quantity, duration, chain, collateral });
+
+    const contractAddress = "inj187xj0f8743y73dpm999a9mnpl25cxgzgn9gfqy"; //Get Contract Address
+
+    const NETWORK = Network.TestnetSentry
+    const ENDPOINTS = getNetworkEndpoints(NETWORK)
+    const chainGrpcWasmApi = new ChainGrpcWasmApi(ENDPOINTS.grpc)
+    
+    const walletStrategy = new WalletStrategy({
+      chainId: ChainId.Testnet,
+    })
+    
+    const getAddresses = async (): Promise<string[]> => {
+      const addresses = await walletStrategy.getAddresses();
+    
+      if (addresses.length === 0) {
+        throw new Web3Exception(
+          new Error("There are no addresses linked in this wallet.")
+        );
+      }
+      
+      return addresses;
+    };
+    
+    const msgBroadcastClient = new MsgBroadcaster({
+      walletStrategy,
+      network: NETWORK,
+    })
+
+    console.log(msgBroadcastClient)
+    
+    const [address]  = await getAddresses();
+    const injectiveAddress = address
+    console.log(injectiveAddress)
+
     const msg = MsgExecuteContractCompat.fromJSON({
       contractAddress,
       sender: injectiveAddress,
@@ -62,28 +137,38 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
           {
             denom: INJ_DENOM,
             amount: new BigNumberInBase(quantity).toWei().toFixed(),
-            duration: duration,
-            quantity: quantity,
-            collateral: {
-              denom: INJ_DENOM,
-              amount: new BigNumberInBase(collateral).toWei().toFixed(),
-            }, //To Check
+            duration : duration,
+            quantity : quantity,
+            collateral : {denom : INJ_DENOM, amount : new BigNumberInBase(collateral).toWei().toFixed(), }, //To Check 
           },
         ],
       },
     });
-    console.log("privateKey", privateKey, mnemonic);
-    const txHash = new MsgBroadcasterWithPk({
-      privateKey, //Get this private key from wallet
-      network: Network.Testnet,
-    }).broadcast({
-      msgs: msg,
-    });
 
-    console.log(txHash);
-    console.log({ quantity, duration, chain, collateral });
+    console.log(msg)
+    
+    try {
+      const txHash = await msgBroadcastClient.broadcast({
+        msgs: msg,
+        injectiveAddress: injectiveAddress,
+      });
+    
+      console.log(txHash);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+    
+
+    // const txHash = new MsgBroadcasterWithPk({
+    //   PrivateKey, //Get this private key from wallet
+    //   network: Network.Testnet
+    // }).broadcast({
+    //   msgs: msg
+    // });
+
     return { quantity, duration, chain, collateral };
   }
+
   function placeLendOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };

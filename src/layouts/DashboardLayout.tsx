@@ -13,6 +13,7 @@ import {
   createCosmosSignDocFromSignDoc,
   SIGN_DIRECT,
   IndexerGrpcOracleApi,
+  InjectiveStargate,
 } from "@injectivelabs/sdk-ts";
 import {
   DEFAULT_STD_FEE,
@@ -22,6 +23,7 @@ import {
 import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
+import { json } from "stream/consumers";
 
 const navigation = [
   {
@@ -84,12 +86,38 @@ function DashboardLayout({ children, activePage }) {
   useEffect(() => {
     if (publicAddress) {
       async function x() {
-        const client = await SigningStargateClient.connectWithSigner(
-          getNetworkEndpoints(Network.Testnet).rest,
-          window.keplr.getOfflineSigner(ChainId.Testnet)
-        );
-        const balances = await client.getAllBalances(accounts[0].address);
-        console.log("balances", balances);
+        // console.log("Network Endpoint: "+getNetworkEndpoints(Network.Testnet).rest)
+        // console.log("Network Endpoint: "+JSON.stringify(getNetworkEndpoints(Network.TestnetSentry).rpc))
+        // console.log("Offline signer: "+JSON.stringify(window.keplr.getOfflineSigner(ChainId.TestnetSentry)))
+        // console.log("Offline signer: "+JSON.stringify(ChainId))
+        // const client = await SigningStargateClient.connectWithSigner(
+        //   getNetworkEndpoints(Network.TestnetSentry).rest,
+        //   window.keplr.getOfflineSigner(ChainId.Testnet)
+        // );
+
+        // const client =
+        // await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+        //   getNetworkEndpoints(Network.TestnetSentry).rest,
+        //   window.keplr.getOfflineSigner(ChainId.Testnet),
+        // );
+
+        await window.keplr.enable(ChainId.Testnet);
+        const offlineSigner = window.getOfflineSigner(ChainId.Testnet);
+        const [account] = await offlineSigner.getAccounts();
+
+        // console.log("Offline signer: "+JSON.stringify(offlineSigner))
+        // console.log("Account: "+JSON.stringify(account))
+
+         // Initialize the stargate client
+        const client =
+        await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+          getNetworkEndpoints(Network.TestnetSentry).rpc,
+          offlineSigner
+          );
+
+          // console.log(client)
+        const balances = await client.getAllBalances(account.address);
+        console.log("Balances", balances);
       }
       x();
     }
