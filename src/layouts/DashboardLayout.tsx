@@ -22,7 +22,7 @@ import {
 import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
-
+import users from "../data/users.json";
 const navigation = [
   {
     name: "Markets",
@@ -94,6 +94,26 @@ function DashboardLayout({ children, activePage }) {
       x();
     }
   }, [publicAddress]);
+  useEffect(() => {
+    const userDetails = window.localStorage.getItem("USER_DETAILS");
+    if (!userDetails) {
+      let username = prompt("Enter username");
+      let password = prompt("Enter password");
+      let foundUser = users.find(
+        (singleUser) =>
+          singleUser.username == username && singleUser.password == password
+      );
+      if (foundUser) {
+        window.localStorage.setItem(
+          "USER_DETAILS",
+          JSON.stringify({ username, password })
+        );
+        alert("logged in as " + username);
+      } else {
+        alert("Invalid username or password");
+      }
+    }
+  }, []);
 
   async function connectWallet() {
     const { accounts } = await getKeplr(ChainId.Testnet);

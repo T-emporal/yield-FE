@@ -36,6 +36,7 @@ function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
   );
 }
 export default function Home() {
+
   return (
     <DashboardLayout activePage={"Markets"}>
       <section className="grid grid-cols-3 gap-[67px] mt-[80px] mx-auto max-w-[1280px]">
