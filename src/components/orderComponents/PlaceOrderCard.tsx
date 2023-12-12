@@ -170,7 +170,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   }
 
   async function placeLendOrder(quantity, duration, chain) {
-    console.log({ quantity, duration, chain, collateral });
+    console.log({ quantity, duration, chain });
 
     const contractAddress = "inj19q99j99ddvw8sksza6hrz7l08xv94f9e7j9jlp"; //Get Contract Address
 
@@ -209,13 +209,14 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       contractAddress,
       sender: injectiveAddress,
       exec: {
-        action: "lend_to_pool",
-        msg: [
+        action: "lend",
+        funds: [
           {
             denom: INJ_DENOM,
             amount: new BigNumberInBase(quantity).toWei().toFixed(),
             duration : duration,
             quantity : quantity,
+            //collateral : {denom : INJ_DENOM, amount : new BigNumberInBase(collateral).toWei().toFixed(), }, //To Check 
           },
         ],
       },
@@ -234,9 +235,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       console.error("An error occurred:", error);
     }
 
-    return { quantity, duration, chain, collateral };
+    return { quantity, duration, chain };
   }
-  
   function placeEarnOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };
