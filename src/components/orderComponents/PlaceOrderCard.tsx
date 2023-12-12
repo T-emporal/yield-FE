@@ -95,7 +95,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   async function placeBorrowOrder(quantity, duration, chain, collateral) {
     console.log({ quantity, duration, chain, collateral });
 
-    const contractAddress = "inj187xj0f8743y73dpm999a9mnpl25cxgzgn9gfqy"; //Get Contract Address
+    const contractAddress = "inj19q99j99ddvw8sksza6hrz7l08xv94f9e7j9jlp"; //Get Contract Address
 
     const NETWORK = Network.TestnetSentry
     const ENDPOINTS = getNetworkEndpoints(NETWORK)
@@ -132,8 +132,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
       contractAddress,
       sender: injectiveAddress,
       exec: {
-        action: "borrow",
-        funds: [
+        action: "borrow_from_pool",
+        msg: [
           {
             denom: INJ_DENOM,
             amount: new BigNumberInBase(quantity).toWei().toFixed(),
@@ -169,10 +169,74 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     return { quantity, duration, chain, collateral };
   }
 
-  function placeLendOrder(quantity, duration, chain) {
-    console.log({ quantity, duration, chain });
-    return { quantity, duration, chain };
+  async function placeLendOrder(quantity, duration, chain) {
+    console.log({ quantity, duration, chain, collateral });
+
+    const contractAddress = "inj19q99j99ddvw8sksza6hrz7l08xv94f9e7j9jlp"; //Get Contract Address
+
+    const NETWORK = Network.TestnetSentry
+    const ENDPOINTS = getNetworkEndpoints(NETWORK)
+    const chainGrpcWasmApi = new ChainGrpcWasmApi(ENDPOINTS.grpc)
+    
+    const walletStrategy = new WalletStrategy({
+      chainId: ChainId.Testnet,
+    })
+    
+    const getAddresses = async (): Promise<string[]> => {
+      const addresses = await walletStrategy.getAddresses();
+    
+      if (addresses.length === 0) {
+        throw new Web3Exception(
+          new Error("There are no addresses linked in this wallet.")
+        );
+      }
+      
+      return addresses;
+    };
+    
+    const msgBroadcastClient = new MsgBroadcaster({
+      walletStrategy,
+      network: NETWORK,
+    })
+
+    console.log(msgBroadcastClient)
+    
+    const [address]  = await getAddresses();
+    const injectiveAddress = address
+    console.log(injectiveAddress)
+
+    const msg = MsgExecuteContractCompat.fromJSON({
+      contractAddress,
+      sender: injectiveAddress,
+      exec: {
+        action: "lend_to_pool",
+        msg: [
+          {
+            denom: INJ_DENOM,
+            amount: new BigNumberInBase(quantity).toWei().toFixed(),
+            duration : duration,
+            quantity : quantity,
+          },
+        ],
+      },
+    });
+
+    console.log(msg)
+    
+    try {
+      const txHash = await msgBroadcastClient.broadcast({
+        msgs: msg,
+        injectiveAddress: injectiveAddress,
+      });
+    
+      console.log(txHash);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+
+    return { quantity, duration, chain, collateral };
   }
+  
   function placeEarnOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };
@@ -498,7 +562,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 quantity,
                 duration,
                 selectedChain.name,
-                selectedChainCollateral.name
+                collateralLevel
               );
             case "Lend":
               return placeLendOrder(quantity, duration, selectedChain.name);
