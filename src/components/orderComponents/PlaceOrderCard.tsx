@@ -205,20 +205,33 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     const injectiveAddress = address
     console.log(injectiveAddress)
 
+    // const baseAmount = new BigNumberInBase(quantity).toWei().toFixed()
+
+    // const msg = MsgExecuteContractCompat.fromJSON({
+    //   contractAddress,
+    //   sender: injectiveAddress,
+    //   exec: {
+    //     action: "lend_to_pool",
+    //     msg: [{
+    //       denom: INJ_DENOM,
+    //       amount: parseInt(baseAmount),
+    //       duration : parseInt(duration),
+    //       quantity : parseInt(quantity),
+    //     }],
+    //   },
+    // });
+    
     const msg = MsgExecuteContractCompat.fromJSON({
       contractAddress,
       sender: injectiveAddress,
-      exec: {
-        action: "lend",
-        funds: [
-          {
-            denom: INJ_DENOM,
-            amount: new BigNumberInBase(quantity).toWei().toFixed(),
-            duration : duration,
-            quantity : quantity,
-            //collateral : {denom : INJ_DENOM, amount : new BigNumberInBase(collateral).toWei().toFixed(), }, //To Check 
-          },
-        ],
+      msg: {
+        lend_to_pool:
+        {
+          denom: INJ_DENOM,
+          amount: new BigNumberInBase(quantity).toWei().toFixed(),
+          duration: duration,
+          quantity: quantity,
+        },
       },
     });
 
@@ -237,6 +250,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
 
     return { quantity, duration, chain };
   }
+
   function placeEarnOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };
