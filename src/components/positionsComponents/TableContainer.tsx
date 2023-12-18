@@ -47,7 +47,7 @@ async function queryContractPool() {
       }
 
       // const queryObj = { lend_to_pool: {address: injectiveAddress} };
-      const queryObj = { lend: {} };
+      const queryObj = { pool: {} };
       const json = JSON.stringify(queryObj);
       const b64Query = Buffer.from(json).toString('base64');
 
