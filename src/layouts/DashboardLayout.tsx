@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   MsgSend,
   BaseAccount,
@@ -22,7 +22,7 @@ import {
 import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import users from "../data/users.json";
+
 const navigation = [
   {
     name: "Markets",
@@ -55,7 +55,7 @@ export async function getOraclePrice(baseSymbol = "INJ") {
 
   const quoteSymbol = "USDT";
   const oracleType = "bandibc"; // primary oracle we use
-  if (baseSymbol == "USDT") return 1;
+
   const oraclePrice = await indexerGrpcOracleApi.fetchOraclePriceNoThrow({
     baseSymbol,
     quoteSymbol,
@@ -65,12 +65,15 @@ export async function getOraclePrice(baseSymbol = "INJ") {
   console.log("oraclePrice", oraclePrice.price);
   return oraclePrice.price;
 }
-export const getKeplr = async (chainId) => {
-  await window.keplr.enable(chainId);
+function DashboardLayout({ children, activePage }) {
+  const [publicAddress, setPublicAddress] = useState("");
+  const [txHash, setTxHash] = useState("");
+  const getKeplr = async (chainId) => {
+    await window.keplr.enable(chainId);
 
-  const offlineSigner = window.keplr.getOfflineSigner(chainId);
-  const accounts = await offlineSigner.getAccounts();
-  const key = await window.keplr.getKey(chainId);
+    const offlineSigner = window.keplr.getOfflineSigner(chainId);
+    const accounts = await offlineSigner.getAccounts();
+    const key = await window.keplr.getKey(chainId);
 
   return { offlineSigner, accounts, key };
 };
@@ -94,33 +97,13 @@ function DashboardLayout({ children, activePage }) {
       x();
     }
   }, [publicAddress]);
-  useEffect(() => {
-    const userDetails = window.localStorage.getItem("USER_DETAILS");
-    if (!userDetails) {
-      let username = prompt("Enter username");
-      let password = prompt("Enter password");
-      let foundUser = users.find(
-        (singleUser) =>
-          singleUser.username == username && singleUser.password == password
-      );
-      if (foundUser) {
-        window.localStorage.setItem(
-          "USER_DETAILS",
-          JSON.stringify({ username, password })
-        );
-        alert("logged in as " + username);
-      } else {
-        alert("Invalid username or password");
-      }
-    }
-  }, []);
 
   async function connectWallet() {
     const { accounts } = await getKeplr(ChainId.Testnet);
-    // if (!keplr) return;
+    if (!keplr) return;
 
     setPublicAddress(accounts[0].address);
-    window.localStorage.setItem("wallet_address", accounts[0].address);
+
     //const cors=require("cors");
     //const corsOptions ={
     //   origin:'*',
@@ -260,12 +243,12 @@ function DashboardLayout({ children, activePage }) {
               )}
             </button>
 
-            {/* <button
+            <button
               className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
               onClick={executeTransaction}
             >
               Transact
-            </button> */}
+            </button>
           </>
         ) : (
           <button

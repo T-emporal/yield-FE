@@ -8,23 +8,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { getOraclePrice } from "@/layouts/DashboardLayout";
-import {
-  MsgExecuteContractCompat,
-  MsgBroadcasterWithPk,
-  PrivateKey,
-} from "@injectivelabs/sdk-ts";
-import { INJ_DENOM } from "@injectivelabs/sdk-ui-ts";
-import { Network } from "@injectivelabs/networks";
-
-import { BigNumberInBase } from "@injectivelabs/utils";
-import { useSearchParams } from "next/navigation";
-
-const injectiveAddress = "inj1udj57jjtd4vmp9l99v29wu75xshumvqz5vsk0c"; // Get the Address of the wallet
-const contractAddress = "cw..."; //Get Contract Address
 const tabs = [
-  { name: "Borrow", href: "0", current: false, lineColor: "#BF71DF" },
-  { name: "Lend", href: "1", current: false, lineColor: "#E86B3A" },
-  { name: "Earn", href: "2", current: false, lineColor: "#0EE29B" },
+  { name: "Borrow", href: "#", current: false, lineColor: "#BF71DF" },
+  { name: "Lend", href: "#", current: false, lineColor: "#E86B3A" },
+  { name: "Earn", href: "#", current: false, lineColor: "#0EE29B" },
 ];
 const chains = [
   { name: "INJ", icon: "./logo_injective.svg" },
@@ -39,7 +26,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
-  const params = useSearchParams();
   const [collateral, setCollateral] = useState("Select Asset");
   const [quantity, setQuantity] = useState("10");
   const [currentPrice, setCurrentPrice] = useState(0);
@@ -50,37 +36,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   const [selectedChainCollateral, setSelectedChainCollateral] = useState(
     chains[0]
   );
-  // console.log("params", );
   function placeBorrowOrder(quantity, duration, chain, collateral) {
-    let { privateKey, mnemonic } = PrivateKey.generate();
-    const msg = MsgExecuteContractCompat.fromJSON({
-      contractAddress,
-      sender: injectiveAddress,
-      exec: {
-        action: "borrow",
-        funds: [
-          {
-            denom: INJ_DENOM,
-            amount: new BigNumberInBase(quantity).toWei().toFixed(),
-            duration: duration,
-            quantity: quantity,
-            collateral: {
-              denom: INJ_DENOM,
-              amount: new BigNumberInBase(collateral).toWei().toFixed(),
-            }, //To Check
-          },
-        ],
-      },
-    });
-    console.log("privateKey", privateKey, mnemonic);
-    const txHash = new MsgBroadcasterWithPk({
-      privateKey, //Get this private key from wallet
-      network: Network.Testnet,
-    }).broadcast({
-      msgs: msg,
-    });
-
-    console.log(txHash);
     console.log({ quantity, duration, chain, collateral });
     return { quantity, duration, chain, collateral };
   }
@@ -103,14 +59,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     setQuantity("10");
     setCurrentPrice(0);
   }, [currentMode]);
-  useEffect(() => {
-    let tab = params.get("tab");
-    let chain = params.get("chain");
-    if (chain)
-      setSelectedChain(chains.find((singleChain) => singleChain.name == chain));
-    if (tab)
-      setCurrentMode(tabs.find((singleTab) => singleTab.href == tab)?.name);
-  }, []);
 
   return (
     <div className="bg-[#15191ddf] backdrop-blur-[2px] py-4 xl:py-6 rounded-[2px] w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
