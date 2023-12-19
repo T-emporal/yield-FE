@@ -8,6 +8,28 @@ import {
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { getOraclePrice } from "@/layouts/DashboardLayout";
+
+import {
+  ChainGrpcWasmApi,
+  MsgExecuteContractCompat,
+  MsgExecuteContract,
+  MsgSend,
+  PrivateKey,
+  getInjectiveAddress, 
+} from "@injectivelabs/sdk-ts";
+import { INJ_DENOM } from "@injectivelabs/sdk-ui-ts";
+import { Network, getNetworkEndpoints } from '@injectivelabs/networks';
+import { ChainId } from "@injectivelabs/ts-types";
+
+import { BigNumberInBase } from "@injectivelabs/utils";
+import { useSearchParams } from "next/navigation";
+
+import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
+import { Web3Exception,
+  WalletException,
+  UnspecifiedErrorCode,
+  ErrorType } from '@injectivelabs/exceptions'
+
 const tabs = [
   { name: "Borrow", href: "#", current: false, lineColor: "#BF71DF" },
   { name: "Lend", href: "#", current: false, lineColor: "#E86B3A" },
@@ -36,14 +58,208 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   const [selectedChainCollateral, setSelectedChainCollateral] = useState(
     chains[0]
   );
+
+  // console.log("params", );
+ 
+  // function placeBorrowOrder(quantity, duration, chain, collateral) {
+  //   let { privateKey, mnemonic } = PrivateKey.generate();
+  //   const msg = MsgExecuteContractCompat.fromJSON({
+  //     contractAddress,
+  //     sender: injectiveAddress,
+  //     exec: {
+  //       action: "borrow",
+  //       funds: [
+  //         {
+  //           denom: INJ_DENOM,
+  //           amount: new BigNumberInBase(quantity).toWei().toFixed(),
+  //           duration: duration,
+  //           quantity: quantity,
+  //           collateral: {
+  //             denom: INJ_DENOM,
+  //             amount: new BigNumberInBase(collateral).toWei().toFixed(),
+  //           }, //To Check
+  //         },
+  //       ],
+  //     },
+  //   });
+  //   console.log("privateKey", privateKey, mnemonic);
+  //   const txHash = new MsgBroadcasterWithPk({
+  //     privateKey, //Get this private key from wallet
+  //     network: Network.Testnet,
+  //   }).broadcast({
+  //     msgs: msg,
+  //   });
+
+  //   console.log(txHash);
+  //   console.log({ quantity, duration, chain, collateral });
+  //   return { quantity, duration, chain, collateral };
+  // }
+ 
+  async function placeBorrowOrder(quantity, duration, chain, collateral) {
+    console.log({ quantity, duration, chain, collateral });
+
+    const contractAddress = "inj19q99j99ddvw8sksza6hrz7l08xv94f9e7j9jlp"; //Get Contract Address
+
+    const NETWORK = Network.TestnetSentry
+    const ENDPOINTS = getNetworkEndpoints(NETWORK)
+    const chainGrpcWasmApi = new ChainGrpcWasmApi(ENDPOINTS.grpc)
+    
+    const walletStrategy = new WalletStrategy({
+      chainId: ChainId.Testnet,
+    })
+    
+    const getAddresses = async (): Promise<string[]> => {
+      const addresses = await walletStrategy.getAddresses();
+    
+      if (addresses.length === 0) {
+        throw new Web3Exception(
+          new Error("There are no addresses linked in this wallet.")
+        );
+      }
+      
+      return addresses;
+    };
+    
+    const msgBroadcastClient = new MsgBroadcaster({
+      walletStrategy,
+      network: NETWORK,
+    })
+
+    console.log(msgBroadcastClient)
+    
+    const [address]  = await getAddresses();
+    const injectiveAddress = address
+    console.log(injectiveAddress)
+
+    const msg = MsgExecuteContractCompat.fromJSON({
+      contractAddress,
+      sender: injectiveAddress,
+      exec: {
+        action: "borrow_from_pool",
+        msg: [
+          {
+            denom: INJ_DENOM,
+            amount: new BigNumberInBase(quantity).toWei().toFixed(),
+            duration : duration,
+            quantity : quantity,
+            collateral : {denom : INJ_DENOM, amount : new BigNumberInBase(collateral).toWei().toFixed(), }, //To Check 
+          },
+        ],
+      },
+    });
+
+    console.log(msg)
+    
+    try {
+      const txHash = await msgBroadcastClient.broadcast({
+        msgs: msg,
+        injectiveAddress: injectiveAddress,
+      });
+    
+      console.log(txHash);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+
   function placeBorrowOrder(quantity, duration, chain, collateral) {
     console.log({ quantity, duration, chain, collateral });
+
     return { quantity, duration, chain, collateral };
   }
-  function placeLendOrder(quantity, duration, chain) {
+
+  async function placeLendOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
+
+    const contractAddress = "inj10k852590ktkn5k9jw5gjgktmleawqdaes63qda"; 
+
+    const NETWORK = Network.TestnetSentry
+    const ENDPOINTS = getNetworkEndpoints(NETWORK)
+    const chainGrpcWasmApi = new ChainGrpcWasmApi(ENDPOINTS.grpc)
+
+    const walletStrategy = new WalletStrategy({
+      chainId: ChainId.Testnet,
+    })
+    
+    const getAddresses = async (): Promise<string[]> => {
+      const addresses = await walletStrategy.getAddresses();
+    
+      if (addresses.length === 0) {
+        throw new Web3Exception(
+          new Error("There are no addresses linked in this wallet.")
+        );
+      }
+      
+      return addresses;
+    };
+    
+    const msgBroadcastClient = new MsgBroadcaster({
+      walletStrategy,
+      network: NETWORK,
+    })
+
+    console.log(msgBroadcastClient)
+    
+    const [address]  = await getAddresses();
+    const injectiveAddress = address
+    console.log(injectiveAddress)
+
+    // ================================================
+    // Old implementation with msg    
+    // ================================================
+
+    // const innerMsg = {
+    //   "Escrow": {
+    //     "time": parseInt(duration),
+    //   }
+    // };
+   
+    // const innerMsg = {
+    //   "time": parseInt(duration),
+    // };
+
+    // let jsonString = JSON.stringify(innerMsg);
+
+    // const msg = MsgExecuteContract.fromJSON({
+    //   contractAddress,
+    //   sender: injectiveAddress,
+    //   exec: {
+    //     action: "lend_to_pool",
+    //     msg: {
+    //       sender: injectiveAddress,
+    //       amount: parseInt(baseAmount),
+    //       msg: jsonString,
+    //     },
+    //   },
+    // });
+    // ================================================
+
+
+    const msg = MsgExecuteContract.fromJSON({
+      contractAddress,
+      sender: injectiveAddress,
+      msg: {
+        lend_to_pool_v2: {
+          lender: injectiveAddress,
+          amount: new BigNumberInBase(quantity).toWei().toFixed(),
+          duration: parseInt(duration)
+        },
+      },
+    });
+    
+    try {
+      const txHash = await msgBroadcastClient.broadcast({
+        msgs: msg,
+        injectiveAddress: injectiveAddress,
+      });
+    
+      console.log(txHash);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+
     return { quantity, duration, chain };
   }
+
   function placeEarnOrder(quantity, duration, chain) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };
@@ -361,7 +577,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
                 quantity,
                 duration,
                 selectedChain.name,
-                selectedChainCollateral.name
+                collateralLevel
               );
             case "Lend":
               return placeLendOrder(quantity, duration, selectedChain.name);
