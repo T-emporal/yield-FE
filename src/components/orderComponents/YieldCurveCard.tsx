@@ -10,7 +10,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import LineChart from "./LineChart";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -28,12 +27,50 @@ export const options = {
   plugins: {
     legend: {
       position: "top",
+      display: false,
     },
     title: {
       display: true,
-      text: "Chart.js Line Chart",
+    },
+    customCanvasBackgroundColor: {
+      color: "transparent",
+      display: false,
     },
   },
+  scales: {
+    x: {
+      ticks: {
+        color: "white",
+      },
+      border: {
+        width: 1,
+        color: 'white',
+      },
+      title: {
+        display: true,
+        text: 'DURATION',
+        color: 'white',
+      },
+    },
+    y: {
+      ticks: {
+        color: "white",
+      },
+      border: {
+        width: 1,
+        color: 'white',
+      },
+      title: {
+        display: true,
+        text: 'YIELD',
+        color: 'white',
+      },
+    },
+  },
+  // scales: {
+  //   xAxes: { ticks: { color: "white" } },
+  //   yAxes: { ticks: { color: "white" } },
+  // },
 };
 
 const labels = [0, 2, 4, 6, 8, 10, 12];
@@ -49,9 +86,33 @@ export const data = {
     },
   ],
 };
+
+function LineChart({ lineColor }) {
+  return (
+    <div className="  p-6">
+      <Line
+        options={options}
+        data={{
+          labels,
+          datasets: [
+            {
+              label: "Dataset 1",
+              data: [3.0, 3.05, 3.05, 3.1, 3.2, 3.15, 3.3],
+              borderColor: lineColor,
+              backgroundColor: "#0EE29B99",
+            },
+          ],
+        }}
+        // height={"450px"}
+        className="h-[400px] xl:h-[450px] !w-full"
+      />
+    </div>
+  );
+}
+
 function YieldCurveCard({ lineColor }) {
   return (
-    <div className=" h-full bg-[#15191ddf] backdrop-blur-[2px] p-6">
+    <div className=" h-full bg-neutral-900/70 backdrop-blur-[5px] rounded-xl p-6">
       <span className="text-lg font-bold text-[#f2f2f2] uppercase">
         Yield Curve
       </span>
