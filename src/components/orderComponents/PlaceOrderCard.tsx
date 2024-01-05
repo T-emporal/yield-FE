@@ -118,9 +118,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     const [account] = await offlineSigner.getAccounts();
 
     const client =
-    await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-      getNetworkEndpoints(Network.TestnetSentry).rpc,
-      offlineSigner
+      await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+        getNetworkEndpoints(Network.TestnetSentry).rpc,
+        offlineSigner
       );
 
     const balances = await client.getAllBalances(account.address);
@@ -384,7 +384,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
               onChange={(e) => setMintAmount(e.target.value)}
             />
           </div>
-
         </div>
       </div>
 
@@ -430,31 +429,127 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
 
   const renderRedeemView = () => (
     <>
-      <div className="flex flex-col mt-4">
-        <div className="flex items-center justify-between px-4 py-2  bg-gray-300 rounded-md">
-          <span>PT {selectedMintChain.name}</span>
-          <span>30 Dec 2030</span>
-          <input
-            type="number"
-            placeholder="0"
-            className="flex-grow px-4 py-2 ml-2 text-white  bg-gray-300 rounded-md"
-          />
-        </div>
-        <div className="flex items-center justify-between px-4 py-2 mt-2  bg-gray-300 rounded-md">
-          <span>YT {selectedMintChain.name}</span>
-          <span>30 Dec 2030</span>
-          <input
-            type="number"
-            placeholder="0"
-            className="flex-grow px-4 py-2 ml-2 text-white  bg-gray-300 rounded-md"
-          />
-        </div>
-        <div className="flex items-center justify-between px-4 py-2 mt-2  bg-gray-300 rounded-md">
-          <span>{selectedMintChain.name}</span>
-          <span>—</span>
-          <span>0</span>
+      <div className="flex items-center">
+        <div className="w-full pb-5">
+          <label htmlFor="mint-amount" className="text-xs xl:text-sm font-medium leading-6 text-gray-100">
+            Tip: Before maturity, both PT and YT are required for redemption. After maturity, only PT is required.
+          </label>
+          <div className="w-full flex justify-between items-center mt-5">
+            <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+              Input
+            </label>
+            <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+              Balance: {currentBalance}
+            </label>
+          </div>
+
+          <div className="flex flex-col">
+            <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-1">
+              <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
+                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
+                <div>
+                  <div className="text-gray-400">PT {selectedMintChain.name}</div>
+                  <div className="text-gray-400 text-xs">30 Dec 2030</div>
+                </div>
+              </div>
+              <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+                0
+              </span>
+            </div>
+
+
+            <div className="w-full flex justify-between items-center mt-5">
+              <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+
+              </label>
+              <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+                Balance: {currentBalance}
+              </label>
+            </div>
+
+
+            <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-1">
+              <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
+                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
+                <div>
+                  <div className="text-gray-400">YT {selectedMintChain.name}</div>
+                  <div className="text-gray-400 text-xs">30 Dec 2030</div>
+                </div>
+              </div>
+              <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+                0
+              </span>
+            </div>
+          </div>
+
         </div>
       </div>
+
+
+
+      <div className="flex justify-center">
+        <ArrowDownCircleIcon
+          strokeWidth={2}
+          className="w-7 h-7 text-temporal50"
+        />
+      </div>
+
+      <div className="rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-5  flex">
+        <div className="relative pr-5 flex-1 border-r border-temporal50">
+          <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
+            <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center">
+              <span className=" truncate flex items-center text-gray-400">
+                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mr-5 h-6" />
+                {selectedMintChain.name}
+              </span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              </span>
+            </Listbox.Button>
+            <Transition
+              as={Fragment}
+              enter="transition transform origin-top duration-200 ease-out"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="transition transform origin-top duration-200 ease-in"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Listbox.Options className="absolute mt-1 w-full  bg-[#15191D] rounded-md shadow-lg z-100">
+                {chains.map((chain) => (
+                  <Listbox.Option key={chain.name} value={chain} as={Fragment}>
+                    {({ active, selected }) => (
+                      <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
+                        <img src={chain.icon} alt={chain.name} className="w-10 h-10 px-3" />
+                        {chain.name}
+                      </li>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </Listbox>
+
+
+        </div>
+        <input
+          type="text"
+          name="mint-amount"
+          id="mint-amount"
+          className="flex-1 border-0 border-l border-temporal50 py-4 text-white bg-transparent focus:outline-none "
+          placeholder=""
+          aria-describedby="mint-amount"
+          value={mintAmount}
+          onChange={(e) => setMintAmount(e.target.value)}
+        />
+      </div>
+
+
+
+
     </>
   );
 
@@ -804,24 +899,22 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
 
         {currentMode == "Mint" && (
           <div className=" px-6 2xl:px-16 pb-5 ">
-            <div className="flex my-5 justify-center  text-sm bg-transparent rounded-lg">
+            <div className="flex my-5 justify-center text-sm bg-transparent rounded-lg">
               <button
                 onClick={() => setMintMode('mint')}
-                className={`w-24 border border-r-0 border-temporal px-4 py-2 rounded-l-lg ${mintMode === 'mint' ? 'bg-temporal50 text-white' : 'bg-teal-900/30 text-gray-400'}`}
+                className={`w-24 border border-r-0 border-temporal px-4 py-2 rounded-l-lg transition duration-500 ease-in-out ${mintMode === 'mint' ? 'bg-temporal50 text-white' : 'bg-teal-900/30 text-gray-400'}`}
               >
                 MINT
               </button>
               <button
                 onClick={() => setMintMode('redeem')}
-                className={`w-24 border border-l-0 border-temporal px-4 py-2 rounded-r-lg ${mintMode === 'redeem' ? 'bg-temporal50 text-white' : 'bg-teal-900/30 text-gray-400'}`}
+                className={`w-24 border border-l-0 border-temporal px-4 py-2 rounded-r-lg transition duration-500 ease-in-out ${mintMode === 'redeem' ? 'bg-temporal50 text-white' : 'bg-teal-900/30 text-gray-400'}`}
               >
                 REDEEM
               </button>
             </div>
             <div className="mt-4">
-              {mintMode === 'mint' ?
-                renderMintView()
-                : renderRedeemView()}
+              {mintMode === 'mint' ? renderMintView() : renderRedeemView()}
             </div>
 
           </div>
