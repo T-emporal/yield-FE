@@ -20,13 +20,16 @@ ChartJS.register(
   Legend
 );
 
+import { LineChartProps } from '@/types/Components';
+
+
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
   elements: { point: { radius: 1, rotation: 30 } },
   plugins: {
     legend: {
-      position: "top",
+      position: 'top' as const,
       display: false,
     },
     title: {
@@ -87,7 +90,7 @@ export const data = {
   ],
 };
 
-function LineChart({ lineColor }) {
+function LineChart({ lineColor }: LineChartProps) {
   return (
     <div className="  p-6">
       <Line
@@ -110,9 +113,9 @@ function LineChart({ lineColor }) {
   );
 }
 
-function YieldCurveCard({ lineColor }) {
+function YieldCurveCard({ lineColor }: LineChartProps) {
   return (
-    <div className=" h-full bg-neutral-900/70 backdrop-blur-[5px] rounded-xl p-6">
+    <div className=" h-full bg-gray-700/20  backdrop-blur-[4px] rounded-xl p-6">
       <span className="text-lg font-bold text-[#f2f2f2] uppercase">
         Yield Curve
       </span>

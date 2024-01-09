@@ -6,3 +6,23 @@
 body {
   font-family: 'Poppins', sans-serif;
 }
+
+.orb {
+  width: 1px; /* Adjust size as needed */
+  height: 1px;
+  background-color: rgba(10, 186, 181, 0.2);
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: 0 0 250px 250px rgba(10, 186, 181, 0.2); /* Glowing effect */
+  z-index: 0; 
+}
+
+/* .orb.top-left {
+  top: -5vh;
+  left: -10vw;
+}
+
+.orb.bottom-right {
+  bottom: -10vh;
+  right: -10vw;
+} */

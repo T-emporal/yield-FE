@@ -6,6 +6,7 @@ import {
   ArrowDownCircleIcon,
   CheckIcon,
   ChevronDownIcon,
+  WindowIcon,
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
 import { getOraclePrice } from "@/layouts/DashboardLayout";
@@ -34,10 +35,17 @@ import {
   ErrorType
 } from '@injectivelabs/exceptions'
 
+import { PlaceOrderCardProps } from '@/types/Components';
+
+import { Window as KeplrWindow } from "@keplr-wallet/types";
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface Window extends KeplrWindow { }
+}
 const tabs = [
   { name: "Trade", href: "#", current: false, lineColor: "#BF71DF" },
-  { name: "Earn", href: "#", current: false, lineColor: "#E86B3A" },
   { name: "Mint", href: "#", current: false, lineColor: "#0EE29B" },
+  { name: "Earn", href: "#", current: false, lineColor: "#E86B3A" },
 ];
 const chains = [
   { name: "INJ", icon: "./logo_injective.svg", apy: "4.05%" },
@@ -56,10 +64,10 @@ const poolSummaryData = [
 ];
 
 
-function classNames(...classes) {
+function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(" ");
 }
-const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
+const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrderCardProps) => {
   const [collateral, setCollateral] = useState("Select Asset");
   const [quantity, setQuantity] = useState("10");
   const [currentPrice, setCurrentPrice] = useState(0);
@@ -112,23 +120,38 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   //   return { quantity, duration, chain, collateral };
   // }
   async function getBalance() {
+    if (!window.keplr) {
+      alert("POC Please install keplr extension");
+    } else {
+      await window.keplr.enable(ChainId.Testnet);
+      const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+      const [account] = await offlineSigner.getAccounts();
 
-    await window.keplr.enable(ChainId.Testnet);
-    const offlineSigner = window.getOfflineSigner(ChainId.Testnet);
-    const [account] = await offlineSigner.getAccounts();
+      const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
 
-    const client =
-      await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-        getNetworkEndpoints(Network.TestnetSentry).rpc,
-        offlineSigner
-      );
+      const client =
+        await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+          endpoints,
+          offlineSigner
+        );
 
-    const balances = await client.getAllBalances(account.address);
-    console.log("Balances", balances);
-    return balances[3].amount;
+      const balances = await client.getAllBalances(account.address);
+      console.log("Balances", balances);
+      if(balances.length!==0){
+        return balances[3].amount;
+      }
+      else{
+        return 0;
+      }
+    }
   }
 
-  async function placeTradeOrder(quantity, duration, chain, collateral) {
+  async function placeTradeOrder(
+    quantity: string,
+    duration: string,
+    chain: string,
+    collateral: number
+  ) {
 
     console.log({ quantity, duration, chain, collateral });
 
@@ -202,7 +225,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     return { quantity, duration, chain, collateral };
   }
 
-  async function placeEarnOrder(quantity, duration, chain) {
+  async function placeEarnOrder(
+    quantity: string,
+    duration: string,
+    chain: string,
+  ) {
     console.log({ quantity, duration, chain });
 
     const contractAddress = "inj10k852590ktkn5k9jw5gjgktmleawqdaes63qda";
@@ -295,7 +322,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
     return { quantity, duration, chain };
   }
 
-  function placeMintOrder(quantity, duration, chain) {
+  function placeMintOrder(
+    quantity: string,
+    duration: string,
+    chain: string,
+  ) {
     console.log({ quantity, duration, chain });
     return { quantity, duration, chain };
   }
@@ -313,7 +344,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   useEffect(() => {
     async function y() {
       let balance = await getBalance();
-      setCurrentBalance(balance);
+      if (balance !== undefined) {
+        setCurrentBalance(Number(balance));
+      } else {
+        setCurrentBalance(0);
+      }
     }
     y();
   }, [mintMode]);
@@ -554,7 +589,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
   );
 
   return (
-    <div className="bg-neutral-900/50 backdrop-blur-[4px] py-4 xl:py-6 rounded-xl w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
+    <div className="bg-gray-700/20 backdrop-blur-[4px] py-4 xl:py-6 rounded-xl w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
       <div>
         {" "}
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
@@ -623,7 +658,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
             <Listbox
               value={selectedChain}
               onChange={setSelectedChain}
-              className="mt-2 xl:mt-4"
             >
               <div className="relative mt-4">
                 <Listbox.Button className="relative w-[150px] left-[50%] -translate-x-[50%] cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
@@ -858,7 +892,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }) => {
 
             <div className="text-white rounded-lg w-full" >
               <h2 className="text-xl mb-4">Pool Summary</h2>
-              <div className="bg-neutral-950/50 border border-2 border-temporal50 rounded-lg p-2">
+              <div className="bg-neutral-950/50 border-2 border-temporal50 rounded-lg p-2">
                 <table className="w-full text-gray-300 text-left">
                   <tbody>
                     {poolSummaryData.map((row, rowIndex) => (

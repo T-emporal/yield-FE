@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useRouter } from 'next/router';
 import {
   MsgSend,
   BaseAccount,
@@ -24,6 +25,13 @@ import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { json } from "stream/consumers";
+
+import { Window as KeplrWindow } from "@keplr-wallet/types";
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface Window extends KeplrWindow { }
+}
+import { OrbPosition, OrbIdentifier, DashboardLayoutProps } from '@/types/DashboardLayout';
 
 const navigation = [
   {
@@ -73,16 +81,28 @@ export async function getOraclePrice(baseSymbol = "INJ") {
 
 //   return { offlineSigner, accounts, key };
 // };
-function DashboardLayout({ children, activePage }) {
+const DashboardLayout = ({ children, activePage }: DashboardLayoutProps) => {
   const [publicAddress, setPublicAddress] = useState("");
   const [txHash, setTxHash] = useState("");
+  const router = useRouter();
+
+
+  const [topLeftOrbPosition, setTopLeftOrbPosition] = useState<OrbPosition>({ top: '-5vh', left: '-10vw', bottom: '', right: '' });
+  const [bottomRightOrbPosition, setBottomRightOrbPosition] = useState<OrbPosition>({ top: '', left: '', bottom: '-5vh', right: '-10vw' });
+
+
+  useEffect(() => {
+    const currentPath = router.pathname;
+    updateOrbPositionsBasedOnPath(currentPath);
+  }, [router.pathname]);
+
   useEffect(() => {
     let wallet_address = window.localStorage.getItem("wallet_address");
     if (wallet_address) setPublicAddress(wallet_address);
   }, []);
   useEffect(() => {
     if (publicAddress) {
-      async function x() {
+      const x = async () => {
         // console.log("Network Endpoint: "+getNetworkEndpoints(Network.Testnet).rest)
         // console.log("Network Endpoint: "+JSON.stringify(getNetworkEndpoints(Network.TestnetSentry).rpc))
         // console.log("Offline signer: "+JSON.stringify(window.keplr.getOfflineSigner(ChainId.TestnetSentry)))
@@ -98,44 +118,65 @@ function DashboardLayout({ children, activePage }) {
         //   window.keplr.getOfflineSigner(ChainId.Testnet),
         // );
 
-        await window.keplr.enable(ChainId.Testnet);
-        const offlineSigner = window.getOfflineSigner(ChainId.Testnet);
-        const [account] = await offlineSigner.getAccounts();
+        if (!window.keplr) {
+          alert("Please install keplr extension");
+        } else {
+          await window.keplr.enable(ChainId.Testnet);
+          const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+          const [account] = await offlineSigner.getAccounts();
 
-        // console.log("Offline signer: "+JSON.stringify(offlineSigner))
-        // console.log("Account: "+JSON.stringify(account))
+          // Initialize the stargate client
+          const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
 
-         // Initialize the stargate client
-        const client =
-        await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-          getNetworkEndpoints(Network.TestnetSentry).rpc,
-          offlineSigner
-          );
+          const client =
+            await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+              endpoints,
+              offlineSigner
+            );
 
           // console.log(client)
-        const balances = await client.getAllBalances(account.address);
-        console.log("Balances", balances);
+          // const balances = await client.getAllBalances(account.address);
+          // console.log("Balances", balances);
+        }
       }
       x();
     }
   }, [publicAddress]);
 
+  const updateOrbPositionsBasedOnPath = (navName: string) => {
+
+    let newPositionTopLeft = { ...topLeftOrbPosition };
+    let newPositionBottomRight = { ...bottomRightOrbPosition };
+
+    switch (navName) {
+      case "/":
+        newPositionTopLeft = { top: '5vw', left: '5vh' };
+        newPositionBottomRight = { bottom: '5vw', right: '5vw' };
+        break;
+      case "/orders":
+        newPositionTopLeft = { top: '10vw', left: '20vh' };
+        newPositionBottomRight = { bottom: '10vw', right: '20vw' };
+        break;
+      case "/positions":
+        newPositionTopLeft = { top: '15vw', left: '15vh' };
+        newPositionBottomRight = { bottom: '15vw', right: '15vw' };
+        break;
+    }
+
+    setTopLeftOrbPosition(newPositionTopLeft);
+    setBottomRightOrbPosition(newPositionBottomRight);
+  };
+
   async function connectWallet() {
-    const { accounts } = await getKeplr(ChainId.Testnet);
-    if (!keplr) return;
 
-    setPublicAddress(accounts[0].address);
-
-    //const cors=require("cors");
-    //const corsOptions ={
-    //   origin:'*',
-    //   credentials:true,            //access-control-allow-credentials:true
-    //   optionSuccessStatus:200,
-    //}
-    //
-    //app.use(cors(corsOptions))
-
-    // getOraclePrice();
+    if (!window.keplr) {
+      alert("Please install keplr extension");
+    } else {
+      await window.keplr.enable(ChainId.Testnet);
+      const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+      const [account] = await offlineSigner.getAccounts();
+      setPublicAddress(account.address);
+    }
 
     return;
   }
@@ -143,21 +184,28 @@ function DashboardLayout({ children, activePage }) {
   const executeTransaction = async () => {
     // Define your functions and variables here
 
-    const broadcastTx = async (chainId, txRaw) => {
-      const result = await window.keplr.sendTx(
-        chainId,
-        CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
-        "sync"
-      );
+    const broadcastTx = async (chainId: string, txRaw: CosmosTxV1Beta1Tx.TxRaw) => {
 
-      if (!result || result.length === 0) {
-        throw new TransactionException(
-          new Error("Transaction failed to be broadcasted"),
-          { contextModule: "Keplr" }
+      if (!window.keplr) {
+        alert("Please install keplr extension");
+      } else {
+        const result = await window.keplr.sendTx(
+          chainId,
+          CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
+          "sync"
         );
+
+        if (!result || result.length === 0) {
+          throw new TransactionException(
+            new Error("Transaction failed to be broadcasted"),
+            { contextModule: "Keplr" }
+          );
+        }
+
+        return Buffer.from(result).toString("hex");
       }
 
-      return Buffer.from(result).toString("hex");
+
     };
     const chainId = ChainId.Testnet;
     const { key, offlineSigner } = await getKeplr(chainId);
@@ -223,11 +271,20 @@ function DashboardLayout({ children, activePage }) {
 
   return (
     <main
-      style={{ backgroundImage: 'url("/BG.png")' }}
-      className="bg-cover h-screen w-screen pt-[20px] bg-fixed overflow-y-scroll pb-12"
+      style={{ backgroundImage: 'url("/Background_clean.svg")' }}
+      className="bg-cover h-screen w-screen pt-[20px] bg-fixed overflow-y-scroll pb-12 relative"
     >
+      <div
+        className="orb top-left"
+        style={{ top: topLeftOrbPosition.top, left: topLeftOrbPosition.left }}
+      ></div>
+      <div
+        className="orb bottom-right"
+        style={{ bottom: bottomRightOrbPosition.bottom, right: bottomRightOrbPosition.right }}
+      ></div>
+
       <header className="flex items-center justify-between">
-        <div className="flex items-center ">
+        <div className="flex items-center bg-fixed z-10">
           <img
             src={"/TemporalLogoSmall.svg"}
             alt="Temporal Logo"
@@ -237,11 +294,10 @@ function DashboardLayout({ children, activePage }) {
             <Link
               key={singleNav.href}
               href={singleNav.href}
-              className={`flex items-center uppercase ml-[52px] ${
-                singleNav.name == activePage
-                  ? "text-[#0ABAB5]"
-                  : "text-[#f2f2f2]"
-              }`}
+              className={`flex items-center uppercase ml-[52px] ${singleNav.name == activePage
+                ? "text-[#0ABAB5]"
+                : "text-[#f2f2f2]"
+                }`}
             >
               <img
                 src={
@@ -257,7 +313,7 @@ function DashboardLayout({ children, activePage }) {
         </div>
         {publicAddress ? (
           <>
-            <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]">
+            <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10">
               {publicAddress.slice(0, 5)}...
               {publicAddress.slice(
                 publicAddress.length - 4,

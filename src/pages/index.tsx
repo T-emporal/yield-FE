@@ -13,7 +13,7 @@ function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
       }}
     >
       <div className="flex-column justify-between">
-        <div className="flex  justify-between">
+        <div className="flex justify-between">
           <p className="font-helvetica-neue pb-16 text-4xl text-[#f2f2f2]">
             {token}
           </p>
