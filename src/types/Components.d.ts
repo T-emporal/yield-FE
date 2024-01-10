@@ -17,12 +17,14 @@ export interface TableDataItem {
     yield: string;
     principal: string;
     liquidate?: string;
+    type?: string;
     "Collat. Assets"?: string;
     "Collat. Quant."?: string;
     "Collateral %"?: string;
     "Dip/Wit Collat."?: string;
-  }
-  
+    "Edit/Cancel Order"?: React.ReactNode;
+}
+
 
 export interface TableContainerProps {
     data: TableDataItem[];
