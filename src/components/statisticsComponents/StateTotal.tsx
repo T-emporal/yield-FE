@@ -37,7 +37,7 @@ export const data = {
       label: "Line Dataset",
       type: "bar",
       data: [10],
-      backgroundColor: (item) =>
+      backgroundColor: (item:any) =>
         item.raw < 0 ? "#FF0D09" : "rgba(0, 122, 211, 0.17)",
       fill: true,
     },
@@ -45,34 +45,34 @@ export const data = {
       label: "Line Dataset",
       type: "bar",
       data: [60],
-      backgroundColor: (item) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
+      backgroundColor: (item:any) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
       fill: true,
     },
     {
       label: "Line Dataset",
       type: "bar",
       data: [-20],
-      backgroundColor: (item) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
+      backgroundColor: (item:any) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
       fill: true,
     },
     {
       label: "Line Dataset",
       type: "bar",
       data: [40],
-      backgroundColor: (item) => (item.raw < 0 ? "#FF0D09" : "#F7F9F1"),
+      backgroundColor: (item:any) => (item.raw < 0 ? "#FF0D09" : "#F7F9F1"),
       fill: true,
     },
   ],
 };
 function StateTotal() {
-  return (
-    <Chart
-      type="bar"
-      options={{ maintainAspectRatio: false }}
-      data={data}
-      className="h-full w-full"
-    />
-  );
+  // return (
+  //   <Chart
+  //     type="bar"
+  //     options={{ maintainAspectRatio: false }}
+  //     data={data}
+  //     className="h-full w-full"
+  //   />
+  // );
 }
 
 export default StateTotal;

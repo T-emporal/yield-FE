@@ -2,7 +2,7 @@ import PlaceOrderCard from "@/components/orderComponents/PlaceOrderCard";
 import YieldCurveCard from "@/components/orderComponents/YieldCurveCard";
 import React, { useState } from "react";
 
-function OrdersLayout() {
+function TradeLayout() {
   const [move, setMove] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
   const [yieldGraphOpen, setYieldGraphOpen] = useState(false);
@@ -66,4 +66,4 @@ function OrdersLayout() {
   );
 }
 
-export default OrdersLayout;
+export default TradeLayout;

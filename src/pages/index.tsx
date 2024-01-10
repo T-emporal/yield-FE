@@ -2,8 +2,15 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
+interface SingleTokenCardProps {
+  token: string;
+  tokenYield: string;
+  gradient: string;
+  logoSrc: string;
+}
+
 const inter = Inter({ subsets: ["latin"] });
-function SingleTokenCard({ token, tokenYield, gradient, logoSrc }) {
+const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCardProps) => {
   return (
     <div
       className="transform transition-transform duration-300 hover:scale-105 hover:shadow-lg rounded-xl border-[#ffffff] border-opacity-20 px-8 py-4"

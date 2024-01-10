@@ -31,7 +31,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Window extends KeplrWindow { }
 }
-import { OrbPosition, OrbIdentifier, DashboardLayoutProps } from '@/types/DashboardLayout';
+import { OrbPosition, OrbIdentifier, LayoutProps } from '@/types/Layout';
 
 const navigation = [
   {
@@ -41,14 +41,14 @@ const navigation = [
     iconSelected: "/icon_markets_selected.svg",
   },
   {
-    name: "Orders/Trade",
-    href: "/orders",
+    name: "Trade",
+    href: "/trade",
     icon: "/icon_orders.svg",
     iconSelected: "/icon_orders_selected.svg",
   },
   {
-    name: "Positions/Portfolio",
-    href: "/positions",
+    name: "Portfolio",
+    href: "/portfolio",
     icon: "/icon_positions.svg",
     iconSelected: "/icon_positions_selected.svg",
   },
@@ -81,7 +81,7 @@ export async function getOraclePrice(baseSymbol = "INJ") {
 
 //   return { offlineSigner, accounts, key };
 // };
-const DashboardLayout = ({ children, activePage }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children, activePage }: LayoutProps) => {
   const [publicAddress, setPublicAddress] = useState("");
   const [txHash, setTxHash] = useState("");
   const router = useRouter();
@@ -153,11 +153,11 @@ const DashboardLayout = ({ children, activePage }: DashboardLayoutProps) => {
         newPositionTopLeft = { top: '5vw', left: '5vh' };
         newPositionBottomRight = { bottom: '5vw', right: '5vw' };
         break;
-      case "/orders":
+      case "/trade":
         newPositionTopLeft = { top: '10vw', left: '20vh' };
         newPositionBottomRight = { bottom: '10vw', right: '20vw' };
         break;
-      case "/positions":
+      case "/portfolio":
         newPositionTopLeft = { top: '15vw', left: '15vh' };
         newPositionBottomRight = { bottom: '15vw', right: '15vw' };
         break;
@@ -179,6 +179,23 @@ const DashboardLayout = ({ children, activePage }: DashboardLayoutProps) => {
     }
 
     return;
+  }
+
+  const getKeplr = async (chainId: string) => {
+
+    if (!window.keplr) {
+      alert("Please install keplr extension");
+
+    } else {
+      await window.keplr.enable(chainId)
+
+      const offlineSigner = window.keplr.getOfflineSigner(chainId)
+      const accounts = await offlineSigner.getAccounts()
+      const key = await window.keplr.getKey(chainId)
+
+      return { offlineSigner, accounts, key }
+    }
+
   }
 
   const executeTransaction = async () => {
@@ -208,65 +225,72 @@ const DashboardLayout = ({ children, activePage }: DashboardLayoutProps) => {
 
     };
     const chainId = ChainId.Testnet;
-    const { key, offlineSigner } = await getKeplr(chainId);
-    const pubKey = Buffer.from(key.pubKey).toString("base64");
-    const injectiveAddress = key.bech32Address;
-    const restEndpoint = getNetworkEndpoints(
-      Network.Testnet
-    ).rest; /* getNetworkEndpoints(Network.Mainnet).rest */
-    const amount = {
-      amount: new BigNumberInBase(0.01).toWei().toFixed(),
-      denom: "inj",
-    };
 
-    /** Account Details **/
-    const chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
-    const accountDetailsResponse = await chainRestAuthApi.fetchAccount(
-      injectiveAddress
-    );
-    const baseAccount = BaseAccount.fromRestApi(accountDetailsResponse);
-    const accountDetails = baseAccount.toAccountDetails();
+    const keplrResult = await getKeplr(chainId);
+    if (keplrResult) {
+      const { offlineSigner, accounts, key } = keplrResult;
+      const pubKey = Buffer.from(key.pubKey).toString("base64");
+      const injectiveAddress = key.bech32Address;
+      const restEndpoint = getNetworkEndpoints(
+        Network.Testnet
+      ).rest; /* getNetworkEndpoints(Network.Mainnet).rest */
+      const amount = {
+        amount: new BigNumberInBase(0.01).toWei().toFixed(),
+        denom: "inj",
+      };
 
-    /** Block Details */
-    const chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
-    const latestBlock = await chainRestTendermintApi.fetchLatestBlock();
-    const latestHeight = latestBlock.header.height;
-    const timeoutHeight = new BigNumberInBase(latestHeight).plus(
-      DEFAULT_BLOCK_TIMEOUT_HEIGHT
-    );
+      /** Account Details **/
+      const chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
+      const accountDetailsResponse = await chainRestAuthApi.fetchAccount(
+        injectiveAddress
+      );
+      const baseAccount = BaseAccount.fromRestApi(accountDetailsResponse);
+      const accountDetails = baseAccount.toAccountDetails();
 
-    /** Preparing the transaction */
-    const msg = MsgSend.fromJSON({
-      amount,
-      srcInjectiveAddress: injectiveAddress,
-      dstInjectiveAddress: "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e",
-    });
+      /** Block Details */
+      const chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
+      const latestBlock = await chainRestTendermintApi.fetchLatestBlock();
+      const latestHeight = latestBlock.header.height;
+      const timeoutHeight = new BigNumberInBase(latestHeight).plus(
+        DEFAULT_BLOCK_TIMEOUT_HEIGHT
+      );
 
-    try {
-      const { signDoc } = createTransaction({
-        pubKey,
-        chainId,
-        fee: DEFAULT_STD_FEE,
-        signMode: SIGN_DIRECT,
-        message: [msg],
-        sequence: baseAccount.sequence,
-        timeoutHeight: timeoutHeight.toNumber(),
-        accountNumber: baseAccount.accountNumber,
+      /** Preparing the transaction */
+      const msg = MsgSend.fromJSON({
+        amount,
+        srcInjectiveAddress: injectiveAddress,
+        dstInjectiveAddress: "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e",
       });
 
-      const directSignResponse = await offlineSigner.signDirect(
-        injectiveAddress,
-        createCosmosSignDocFromSignDoc(signDoc)
-      );
-      const txRaw = getTxRawFromTxRawOrDirectSignResponse(directSignResponse);
-      const txHash = await broadcastTx(ChainId.Testnet, txRaw);
-      console.log({ txHash });
-      const response = await new TxRestClient(restEndpoint).fetchTxPoll(txHash);
-      console.log({ response });
-      setTxHash(txHash);
-    } catch (error) {
-      console.error("Error executing transaction:", error);
+      try {
+        const { signDoc } = createTransaction({
+          pubKey,
+          chainId,
+          fee: DEFAULT_STD_FEE,
+          signMode: SIGN_DIRECT,
+          message: [msg],
+          sequence: baseAccount.sequence,
+          timeoutHeight: timeoutHeight.toNumber(),
+          accountNumber: baseAccount.accountNumber,
+        });
+
+        const directSignResponse = await offlineSigner.signDirect(
+          injectiveAddress,
+          createCosmosSignDocFromSignDoc(signDoc)
+        );
+        const txRaw = getTxRawFromTxRawOrDirectSignResponse(directSignResponse);
+        const txHash = await broadcastTx(ChainId.Testnet, txRaw) ?? "";
+        console.log({ txHash });
+        const response = await new TxRestClient(restEndpoint).fetchTxPoll(txHash);
+        console.log({ response });
+        setTxHash(txHash);
+      } catch (error) {
+        console.error("Error executing transaction:", error);
+      }
+    } else {
+      console.error("Keplr didn't return any results");
     }
+
   };
 
   return (

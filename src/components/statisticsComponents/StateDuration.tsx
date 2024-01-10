@@ -40,14 +40,14 @@ export const data = {
       label: "Line Dataset",
       type: 'bar' as const,
       data: [10, -20, 30, 40, 155, 23, 74, 21, 12, 66],
-      backgroundColor: (item:any) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
+      backgroundColor: (item: any) => (item.raw < 0 ? "#FF0D09" : "#5C8733"),
       fill: true,
     },
     {
       label: "Line Dataset",
       type: 'bar' as const,
       data: [120, 20, -30, 40, 55, 23, -74, 21, -12, 66],
-      backgroundColor: (item:any) => (item.raw < 0 ? "#FF0D09" : "#F7F9F1"),
+      backgroundColor: (item: any) => (item.raw < 0 ? "#FF0D09" : "#F7F9F1"),
       fill: true,
     },
     {
@@ -65,7 +65,7 @@ function StateDuration() {
     <Chart
       height={80}
       type="bar"
-      data:any={data}
+      data={data}
       options={{
         scales: {
           y: {

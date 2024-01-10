@@ -1,12 +1,12 @@
 import TableContainer from "@/components/positionsComponents/TableContainer";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import PositionsLayout from "@/layouts/PositionsLayout";
+import PortfolioLayout from "@/layouts/PortfolioLayout";
 import React from "react";
 
 function Earn() {
   return (
-    <DashboardLayout activePage={"Positions"}>
-      <PositionsLayout activePage={"earn"}>
+    <DashboardLayout activePage={"Portfolio"}>
+      <PortfolioLayout activePage={"earn"}>
         {" "}
         <TableContainer
           title={"Earn"}
@@ -64,7 +64,7 @@ function Earn() {
             },
           ]}
         />
-      </PositionsLayout>
+      </PortfolioLayout>
     </DashboardLayout>
   );
 }

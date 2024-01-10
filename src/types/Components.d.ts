@@ -11,13 +11,18 @@ export interface PlaceOrderCardProps {
 }
 
 export interface TableDataItem {
-    asset: React.ReactNode; 
+    asset: React.ReactNode;
     duration: string;
     maturity: string;
     yield: string;
     principal: string;
-    liquidate: string;
-}
+    liquidate?: string;
+    "Collat. Assets"?: string;
+    "Collat. Quant."?: string;
+    "Collateral %"?: string;
+    "Dip/Wit Collat."?: string;
+  }
+  
 
 export interface TableContainerProps {
     data: TableDataItem[];

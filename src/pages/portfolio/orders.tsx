@@ -1,13 +1,13 @@
 import TableContainer from "@/components/positionsComponents/TableContainer";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import PositionsLayout from "@/layouts/PositionsLayout";
+import PortfolioLayout from "@/layouts/PortfolioLayout";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
 function Orders() {
   return (
-    <DashboardLayout activePage={"Positions"}>
-      <PositionsLayout activePage={"orders"}>
+    <DashboardLayout activePage={"Portfolio"}>
+      <PortfolioLayout activePage={"orders"}>
         {" "}
         <TableContainer
           title={"Outstanding orders"}
@@ -83,7 +83,7 @@ function Orders() {
             },
           ]}
         />
-      </PositionsLayout>
+      </PortfolioLayout>
     </DashboardLayout>
   );
 }

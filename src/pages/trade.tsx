@@ -1,11 +1,11 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
-import OrdersLayout from "@/layouts/OrdersLayout";
+import TradeLayout from "@/layouts/TradeLayout";
 import React from "react";
 
 function orders() {
   return (
-    <DashboardLayout activePage={"Orders/Trade"}>
-      <OrdersLayout />
+    <DashboardLayout activePage={"Trade"}>
+      <TradeLayout />
     </DashboardLayout>
   );
 }

@@ -5,7 +5,7 @@ import React from "react";
 
 function statistics() {
   return (
-    <DashboardLayout activePage={"Positions/Portfolio"}>
+    <DashboardLayout activePage={"Portfolio"}>
       <section
         className=" xl:mt-8 2xl:mt-16  gap-4 "
         // style={{ gridTemplateColumns: "2fr 1fr" }}

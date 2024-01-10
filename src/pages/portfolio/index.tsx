@@ -1,12 +1,12 @@
 import TableContainer from "@/components/positionsComponents/TableContainer";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import PositionsLayout from "@/layouts/PositionsLayout";
+import PortfolioLayout from "@/layouts/PortfolioLayout";
 import React from "react";
 
 function positions() {
   return (
-    <DashboardLayout activePage={"Positions"}>
-      <PositionsLayout activePage={"positions"}>
+    <DashboardLayout activePage={"Portfolio"}>
+      <PortfolioLayout activePage={"portfolio"}>
         <TableContainer
           title={"Lend"}
           data={[
@@ -128,7 +128,7 @@ function positions() {
             },
           ]}
         />
-      </PositionsLayout>
+      </PortfolioLayout>
     </DashboardLayout>
   );
 }

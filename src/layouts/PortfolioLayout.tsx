@@ -1,24 +1,25 @@
 import Link from "next/link";
 import React from "react";
+import { LayoutProps } from '@/types/Layout';
 
-function PositionsLayout({ children, activePage }) {
+const PortfolioLayout = ({ children, activePage }: LayoutProps) => {
   return (
     <div className="w-full h-full relative">
       <div className="flex items-center space-x-6 absolute top-0 left-[300px] text-[#f2f2f2] ">
         <Link
-          href={"/positions"}
-          className={`${activePage == "positions" ? "text-temporal" : ""}`}
+          href={"/portfolio"}
+          className={`${activePage == "portfolio" ? "text-temporal" : ""}`}
         >
           LEND/BORROW
         </Link>
         <Link
-          href={"/positions/earn"}
+          href={"/portfolio/earn"}
           className={`${activePage == "earn" ? "text-temporal" : ""}`}
         >
           EARN
         </Link>
         <Link
-          href={"/positions/orders"}
+          href={"/portfolio/orders"}
           className={`${activePage == "orders" ? "text-temporal" : ""}`}
         >
           ORDERS
@@ -29,4 +30,4 @@ function PositionsLayout({ children, activePage }) {
   );
 }
 
-export default PositionsLayout;
+export default PortfolioLayout;
