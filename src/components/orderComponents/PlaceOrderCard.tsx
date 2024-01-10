@@ -914,7 +914,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                 placeholder="Enter value"
                 value={poolValue}
                 onChange={(e) => setPoolValue(e.target.value)}
-                className="flex-grow border-0 rounded-md py-2 xl:py-2 pl-7 text-white text-center bg-neutral-950/50 focus:outline-none"
+                className="flex-grow border-0 rounded-md py-2 xl:py-2 pl-7 text-white text-center bg-neutral-950/50 focus:outline-none cursor-not-allowed"
+                disabled 
               />
               <div className="flex pl-5 justify-center items-center">
                 <div className="flex flex-col items-center pr-3">
@@ -958,7 +959,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
       </div>
       <button
-        className="w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal"
+        // className="w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal "
+        className={`w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" ? "cursor-not-allowed" : ""}`}
+
         style={{
           backgroundImage: 'linear-gradient(to right, #004C4C80, #005B5B , #002C3C)'
         }} onClick={() => {
@@ -978,8 +981,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               break;
           }
         }}
+        disabled={currentMode === "Earn"}
       >
-        TRADE
+        {currentMode.toUpperCase()}
       </button>
 
       {/* CMNTS: END The order form */}

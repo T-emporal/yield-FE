@@ -10,7 +10,7 @@ import {
   ChainRestTendermintApi,
   getTxRawFromTxRawOrDirectSignResponse,
   TxRestClient,
-  BroadcastMode,
+  BroadcastModeKeplr,
   createCosmosSignDocFromSignDoc,
   SIGN_DIRECT,
   IndexerGrpcOracleApi,
@@ -21,6 +21,8 @@ import {
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
   BigNumberInBase,
 } from "@injectivelabs/utils";
+import { TransactionException } from '@injectivelabs/exceptions'
+import { BroadcastMode } from '@keplr-wallet/types'
 import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
@@ -209,7 +211,7 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
         const result = await window.keplr.sendTx(
           chainId,
           CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
-          "sync"
+          BroadcastMode.Sync
         );
 
         if (!result || result.length === 0) {
