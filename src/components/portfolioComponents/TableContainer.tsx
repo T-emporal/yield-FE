@@ -67,18 +67,14 @@ const TableContainer = ({ data, title }: TableContainerProps) => {
     }
   }
 
-  useEffect(() => {
-    queryContractPool();
-  }, []);
+  // CMNT: Disabled for now
+
+  // useEffect(() => {
+  //   queryContractPool();
+  // }, []);
 
   return (
-    <div
-      className="p-4 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4 rounded-[4px] backdrop-blur-[2px]"
-      style={{
-        background:
-          "radial-gradient(44.09% 44.09% at 50% 50%, rgba(20, 32, 36, 0.75) 0%, rgba(21, 24, 29, 0.75) 100%)",
-      }}
-    >
+    <div className="p-4 xl:p-6 flex flex-col items-start  border border-[#395251ee] mb-3 xl:mb-4  rounded-xl bg-gray-700/20 backdrop-blur-[4px]">
       <div className="w-full flex items-center justify-between">
         <span className="text-[#f2f2f2] font-semibold uppercase text-lg block mb-3 xl:mb-4">
           {title}
@@ -89,8 +85,8 @@ const TableContainer = ({ data, title }: TableContainerProps) => {
           <ChevronDownIcon width={16} />
         </p>
       </div>
-      <table className="min-w-full  ">
-        <thead className="bg-black">
+      <table className="min-w-full ">
+        <thead className="bg-gray-950/40">
           <tr>
             {Object.keys(data[0]).map((singleHeader) => (
               <th
@@ -104,20 +100,24 @@ const TableContainer = ({ data, title }: TableContainerProps) => {
           </tr>
         </thead>
         <tbody className="bg-transparent">
-          {data.map((person, index) => (
-            <tr key={index} className="">
-              {Object.values(person).map((singleValue) => (
-                <td
-                  key={singleValue}
-                  scope="col"
-                  className="whitespace-nowrap px-3 py-3 xl:py-4 text-xs xl:text-sm text-[#f2f2f2] pl-5"
-                >
-                  {singleValue}
-                </td>
-              ))}
+          {data.map((asset, rowIndex) => (
+            <tr key={rowIndex}>
+              {Object.values(asset).map((singleValue, colIndex) => {
+                const key = `row-${rowIndex}_col-${colIndex}`;
+                return (
+                  <td
+                    key={key}
+                    scope="col"
+                    className="whitespace-nowrap px-3 py-2 xl:py-3 text-xs xl:text-sm text-[#f2f2f2] pl-5"
+                  >
+                    {typeof singleValue === 'string' || typeof singleValue === 'number' ? singleValue : React.cloneElement(singleValue, { key: key })}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
+
       </table>
     </div>
   );

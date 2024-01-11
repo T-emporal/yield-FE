@@ -14,10 +14,12 @@ export interface TableDataItem {
     asset: React.ReactNode;
     duration: string;
     maturity: string;
-    yield: string;
-    principal: string;
+    yield?: string;
+    principal?: string;
     liquidate?: string;
     type?: string;
+    apy?: string;
+    units?: string;
     "Collat. Assets"?: string;
     "Collat. Quant."?: string;
     "Collateral %"?: string;

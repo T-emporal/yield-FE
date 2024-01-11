@@ -6,6 +6,8 @@ import {
   ArrowDownCircleIcon,
   CheckIcon,
   ChevronDownIcon,
+  ArrowPathRoundedSquareIcon,
+  ArrowPathIcon,
   WindowIcon,
 } from "@heroicons/react/24/outline";
 import { Listbox, Transition } from "@headlessui/react";
@@ -47,12 +49,12 @@ const tabs = [
   { name: "Earn", href: "#", current: false, lineColor: "#E86B3A" },
 ];
 const chains = [
-  { name: "INJ", icon: "./logo_injective.svg", apy: "4.05%" },
-  { name: "ATOM", icon: "./logo_atom.svg", apy: "3.05%" },
-  { name: "OSMO", icon: "./logo_osmo.svg", apy: "4.34%" },
+  { name: "stINJ", icon: "./logo_injective.svg", apy: "4.05%" },
+  { name: "stATOM", icon: "./logo_atom.svg", apy: "3.05%" },
+  { name: "stOSMO", icon: "./logo_osmo.svg", apy: "4.34%" },
   { name: "stETH", icon: "./logo_stEth.svg", apy: "2.77%" },
-  { name: "USDT", icon: "./logo_usdt.svg", apy: "4.05%" },
-  { name: "wMATIC", icon: "./logo_matic.svg", apy: "4.05%" },
+  { name: "stUSDT", icon: "./logo_usdt.svg", apy: "4.05%" },
+  { name: "stMATIC", icon: "./logo_matic.svg", apy: "4.05%" },
 ];
 const units = ['PT', 'YT', 'RT'];
 const poolSummaryData = [
@@ -71,7 +73,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   const [quantity, setQuantity] = useState("10");
   const [currentPrice, setCurrentPrice] = useState(0);
   const [currentBalance, setCurrentBalance] = useState(0);
-  const [duration, setDuration] = useState("10");
+  const [duration, setDuration] = useState("");
   const [priceSell, setPriceSell] = useState("10");
   const [priceBuy, setPriceBuy] = useState("10");
   const [mintAmount, setMintAmount] = useState('');
@@ -79,9 +81,29 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   const [poolValue, setPoolValue] = useState('');
   const [currentMode, setCurrentMode] = useState("Trade");
   const [collateralLevel, setCollateralLevel] = useState(220);
-  const [selectedChain, setSelectedChain] = useState(chains[3]);
+  const [selectedChain, setSelectedChain] = useState(chains[0]);
   const [mintMode, setMintMode] = useState('mint');
   const [selectedMintChain, setSelectedMintChain] = useState(chains[0]);
+
+  const [PTValue, setPTValue] = useState('');
+  const [YTValue, setYTValue] = useState('');
+  const [isPTActive, setIsPTActive] = useState(true); // State to track which input is active
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const switchValues = () => {
+    setIsAnimating(true);
+
+    const newPTValue = YTValue;
+    const newYTValue = PTValue;
+    setPTValue(newPTValue);
+    setYTValue(newYTValue);
+
+    setIsPTActive(!isPTActive);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 500); // Assuming your animation takes 1 second
+  };
 
   // console.log("params", );
 
@@ -128,20 +150,24 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
       const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
 
-      const client =
-        await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-          endpoints,
-          offlineSigner
-        );
+      try {
+        const client =
+          await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+            endpoints,
+            offlineSigner
+          );
+        const balances = await client.getAllBalances(account.address);
+        console.log("Balances", balances);
+        if (balances.length !== 0) {
+          return balances[3].amount;
+        }
+        else {
+          return 0;
+        }
+      } catch (error) {
+        console.log(error)
+      }
 
-      const balances = await client.getAllBalances(account.address);
-      console.log("Balances", balances);
-      if(balances.length!==0){
-        return balances[3].amount;
-      }
-      else{
-        return 0;
-      }
     }
   }
 
@@ -739,114 +765,60 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
           <div className=" px-6 2xl:px-16 ">
 
             <div className="w-full pb-5">
-              <label htmlFor="price-buy" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
-                Buy
+              <label htmlFor="price-top" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
+                Sell
               </label>
-              <div className="relative mt-2 rounded-md shadow-sm">
-                <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50">
+              <div className="relative mt-2 xl:mt-3 rounded-md shadow-sm">
+                <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2">
+                  <span className={`px-5 ${isPTActive ? 'text-blue-500' : 'text-orange-500'}`}>{isPTActive ? 'PT' : 'YT'}</span>
                   <input
                     type="text"
-                    name="price-buy"
-                    id="price-buy"
-                    className="flex-grow border-0 rounded-l-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
+                    name="price-top"
+                    id="price-top"
+                    className="flex-grow border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
                     placeholder="0.00"
                     aria-describedby="price-addon apy-addon"
-                    value={priceBuy}
-                    onChange={(e) => setPriceBuy(e.target.value)}
+                    value={isPTActive ? PTValue : YTValue}
+                    onChange={(e) => isPTActive ? setPTValue(e.target.value) : setYTValue(e.target.value)}
                   />
-                  <div className="flex items-center">
-                    <Listbox value={selectedUnit} onChange={setSelectedUnit}>
-                      <Listbox.Button className="cursor-default text-[#f2f2f2] py-2 px-3 text-left flex items-center">
-                        {selectedUnit}
-                        <ChevronDownIcon
-                          className="ml-2 h-4 w-4 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </Listbox.Button>
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute border border-temporal px-2 py-1 mt-1 overflow-auto text-base bg-neutral-950 rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-10">
-                          {units.map((unit, unitIdx) => (
-                            <Listbox.Option
-                              key={unitIdx}
-                              className={({ active }) =>
-                                `relative cursor-default select-none py-2 pl-4 pr-4 ${active ? "bg-gray-700 text-white" : "text-white"}`
-                              }
-                              value={unit}
-                            >
-                              <span className={`block truncate ${selectedUnit === unit ? 'font-medium' : 'font-normal'}`}>
-                                {unit}
-                              </span>
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </Listbox>
-                    <div className="flex flex-col items-end pr-3">
-                      <span className="text-gray-500 text-xs" id="price-addon">Px 0.0001</span>
-                      <span className="text-gray-500 text-xs" id="apy-addon">APY 12.08%</span>
-                    </div>
+                  <div className="flex flex-col items-end pr-3">
+                    <span className="text-gray-500 text-xs" id="price-addon">{isPTActive ? 'Px 0.0001' : 'Px 0.999'}</span>
+                    <span className="text-gray-500 text-xs" id="apy-addon">{isPTActive ? 'APY 12.08%' : 'APY 4.03%'}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full pb-5">
-              <label htmlFor="price-sell" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
-                Sell
+            <div className="flex justify-center items-center">
+              <button onClick={switchValues} className="...">
+                <ArrowPathIcon
+                  className={`h-6 w-6 text-gray-400 ${isAnimating ? 'animate-rotation' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+
+
+            <div className="w-full py-5">
+              <label htmlFor="price-bottom" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
+                Buy
               </label>
               <div className="relative mt-2 rounded-md shadow-sm">
-                <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50">
+                <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2">
+                  <span className={`px-5 ${isPTActive ? 'text-orange-500' : 'text-blue-500'}`}>{isPTActive ? 'YT' : 'PT'}</span>
                   <input
                     type="text"
-                    name="price-sell"
-                    id="price-sell"
-                    className="flex-grow border-0 rounded-l-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
+                    name="price-bottom"
+                    id="price-bottom"
+                    className="flex-grow border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
                     placeholder="0.00"
                     aria-describedby="price-addon apy-addon"
-                    value={priceSell}
-                    onChange={(e) => setPriceSell(e.target.value)}
+                    value={isPTActive ? YTValue : PTValue}
+                    onChange={(e) => isPTActive ? setYTValue(e.target.value) : setPTValue(e.target.value)}
                   />
-                  <div className="flex items-center">
-                    <Listbox value={selectedUnit} onChange={setSelectedUnit}>
-                      <Listbox.Button className="cursor-default text-[#f2f2f2] py-2 px-3 text-left flex items-center">
-                        {selectedUnit}
-                        <ChevronDownIcon
-                          className="ml-2 h-4 w-4 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </Listbox.Button>
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute border border-temporal px-2 py-1 mt-1 overflow-auto text-base bg-neutral-950 rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-10">
-                          {units.map((unit, unitIdx) => (
-                            <Listbox.Option
-                              key={unitIdx}
-                              className={({ active }) =>
-                                `relative cursor-default select-none py-2 pl-4 pr-4 ${active ? "bg-gray-700 text-white" : "text-white"}`
-                              }
-                              value={unit}
-                            >
-                              <span className={`block truncate ${selectedUnit === unit ? 'font-medium' : 'font-normal'}`}>
-                                {unit}
-                              </span>
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </Listbox>
-                    <div className="flex flex-col items-end pr-3">
-                      <span className="text-gray-500 text-xs" id="price-addon">Px 0.999</span>
-                      <span className="text-gray-500 text-xs" id="apy-addon">APY 4.03%</span>
-                    </div>
+                  <div className="flex flex-col items-end pr-3">
+                    <span className="text-gray-500 text-xs" id="price-addon">{isPTActive ? 'Px 0.999' : 'Px 0.0001'}</span>
+                    <span className="text-gray-500 text-xs" id="apy-addon">{isPTActive ? 'APY 4.03%' : 'APY 12.08%'}</span>
                   </div>
                 </div>
               </div>
@@ -855,16 +827,16 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             <div className="w-full pb-5">
               <label
                 htmlFor="time"
-                className="block text-sm xl:text-sm font-medium leading-6 text-gray-100"
+                className="block mt-2 text-sm xl:text-sm font-medium leading-6 text-gray-100"
               >
                 Duration
               </label>
-              <div className="relative mt-2 xl:mt-3 rounded-md shadow-sm">
+              <div className="relative rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-3">
                 <input
                   type="text"
                   name="time"
                   id="time"
-                  className="block w-full rounded-md border-0 py-3 xl:py-4 pl-7 pr-12 text-[#f2f2f2] ring-1 ring-inset ring-temporal50 placeholder:text-gray-100 focus:ring-temporal50 bg-neutral-950/50  "
+                  className="block w-full border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
                   placeholder="0.00"
                   aria-describedby="time-duration"
                   value={duration}
@@ -914,7 +886,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                 value={poolValue}
                 onChange={(e) => setPoolValue(e.target.value)}
                 className="flex-grow border-0 rounded-md py-2 xl:py-2 pl-7 text-white text-center bg-neutral-950/50 focus:outline-none cursor-not-allowed"
-                disabled 
+                disabled
               />
               <div className="flex pl-5 justify-center items-center">
                 <div className="flex flex-col items-center pr-3">
@@ -966,6 +938,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         }} onClick={() => {
           switch (currentMode) {
             case "Trade":
+              console.log("YT Value: " + YTValue + " PT Value: " + PTValue)
+
               return placeTradeOrder(
                 quantity,
                 duration,

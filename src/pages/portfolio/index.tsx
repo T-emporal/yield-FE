@@ -1,4 +1,4 @@
-import TableContainer from "@/components/positionsComponents/TableContainer";
+import TableContainer from "@/components/portfolioComponents/TableContainer";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import PortfolioLayout from "@/layouts/PortfolioLayout";
 import React from "react";
@@ -8,7 +8,7 @@ function positions() {
     <DashboardLayout activePage={"Portfolio"}>
       <PortfolioLayout activePage={"portfolio"}>
         <TableContainer
-          title={"Lend"}
+          title={"Yield"}
           data={[
             {
               asset: (
@@ -22,49 +22,66 @@ function positions() {
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
             {
               asset: (
                 <span className="flex items-center">
                   <img
-                    src="/logo_injective.svg"
+                    src="/logo_matic.svg"
                     alt=""
                     className="w-4 h-4 mr-2"
                   />{" "}
-                  INJ
+                  MATIC
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
             {
               asset: (
                 <span className="flex items-center">
                   <img
-                    src="/logo_injective.svg"
+                    src="/logo_atom.svg"
                     alt=""
                     className="w-4 h-4 mr-2"
                   />{" "}
-                  INJ
+                  ATOM
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
+            },
+            {
+              asset: (
+                <span className="flex items-center">
+                  <img
+                    src="/logo_atom.svg"
+                    alt=""
+                    className="w-4 h-4 mr-2"
+                  />{" "}
+                  ATOM
+                </span>
+              ),
+              duration: "10",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
           ]}
         />
         <TableContainer
-          title={"Borrow"}
+          title={"Principal"}
           data={[
             {
               asset: (
@@ -78,53 +95,61 @@ function positions() {
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
-              "Collat. Assets": "LEND",
-              "Collat. Quant.": "LEND",
-              "Collateral %": "LEND",
-              "Dip/Wit Collat.": "LEND",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
             },
             {
               asset: (
                 <span className="flex items-center">
                   <img
-                    src="/logo_injective.svg"
+                    src="/logo_osmo.svg"
                     alt=""
                     className="w-4 h-4 mr-2"
                   />{" "}
-                  INJ
+                  OSMO
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
-              "Collat. Assets": "LEND",
-              "Collat. Quant.": "LEND",
-              "Collateral %": "LEND",
-              "Dip/Wit Collat.": "LEND",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
             },
             {
               asset: (
                 <span className="flex items-center">
                   <img
-                    src="/logo_injective.svg"
+                    src="/logo_usdt.svg"
                     alt=""
                     className="w-4 h-4 mr-2"
                   />{" "}
-                  INJ
+                  USDT
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
-              "Collat. Assets": "LEND",
-              "Collat. Quant.": "LEND",
-              "Collateral %": "LEND",
-              "Dip/Wit Collat.": "LEND",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
+            },
+            {
+              asset: (
+                <span className="flex items-center">
+                  <img
+                    src="/logo_usdt.svg"
+                    alt=""
+                    className="w-4 h-4 mr-2"
+                  />{" "}
+                  USDT
+                </span>
+              ),
+              duration: "10",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
             },
           ]}
         />

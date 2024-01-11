@@ -1,4 +1,4 @@
-import TableContainer from "@/components/positionsComponents/TableContainer";
+import TableContainer from "@/components/portfolioComponents/TableContainer";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import PortfolioLayout from "@/layouts/PortfolioLayout";
 import React from "react";
@@ -23,9 +23,9 @@ function Earn() {
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
             {
@@ -40,9 +40,26 @@ function Earn() {
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
+            },
+            {
+              asset: (
+                <span className="flex items-center">
+                  <img
+                    src="/logo_matic.svg"
+                    alt=""
+                    className="w-4 h-4 mr-2"
+                  />{" "}
+                  MATIC
+                </span>
+              ),
+              duration: "10",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
             {
@@ -57,9 +74,43 @@ function Earn() {
                 </span>
               ),
               duration: "10",
-              maturity: "10/10/2024",
-              yield: "21%",
-              principal: "1000",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
+            },
+            {
+              asset: (
+                <span className="flex items-center">
+                  <img
+                    src="/logo_injective.svg"
+                    alt=""
+                    className="w-4 h-4 mr-2"
+                  />{" "}
+                  INJ
+                </span>
+              ),
+              duration: "10",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
+              liquidate: "1000",
+            },
+            {
+              asset: (
+                <span className="flex items-center">
+                  <img
+                    src="/logo_injective.svg"
+                    alt=""
+                    className="w-4 h-4 mr-2"
+                  />{" "}
+                  INJ
+                </span>
+              ),
+              duration: "10",
+              maturity: "11/03/2023",
+              apy: "21%",
+              units: "1000",
               liquidate: "1000",
             },
           ]}
