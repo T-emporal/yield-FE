@@ -10,6 +10,26 @@ function positions() {
         <TableContainer
           title={"Yield"}
           data={[
+            ["stINJ", "10", "11/03/2023", "21%", "1000", "", ""],
+            ["stMATIC", "10", "11/03/2023", "21%", "1000", "", ""],
+            ["stMATIC", "20", "11/03/2023", "21%", "1000", "", ""],
+            ["stOSMO", "10", "11/03/2023", "21%", "1000", "", ""],
+            // ... other rows ...
+          ]}
+        />
+        <TableContainer
+          title={"Principal"}
+          data={[
+            ["stINJ", "10", "11/03/2023", "21%", "1000", "", ""],
+            ["stMATIC", "10", "11/03/2023", "21%", "1000", "", ""],
+            ["stMATIC", "20", "11/03/2023", "21%", "1000", "", ""],
+            ["stOSMO", "10", "11/03/2023", "21%", "1000", "", ""],
+            // ... other rows ...
+          ]}
+        />
+        {/* <TableContainer
+          title={"Yield"}
+          data={[
             {
               asset: (
                 <span className="flex items-center">
@@ -79,8 +99,8 @@ function positions() {
               liquidate: "1000",
             },
           ]}
-        />
-        <TableContainer
+        /> */}
+        {/* <TableContainer
           title={"Principal"}
           data={[
             {
@@ -152,7 +172,7 @@ function positions() {
               liquidate: "1000",
             },
           ]}
-        />
+        /> */}
       </PortfolioLayout>
     </DashboardLayout>
   );

@@ -19,7 +19,7 @@ const PortfolioLayout = ({ children, activePage }: LayoutProps) => {
           EARN
         </Link>
       </div>
-      <div className="pt-8 xl:pt-12">{children}</div>
+      <div className="pt-12 xl:pt-16 ">{children}</div>
     </div>
   );
 }

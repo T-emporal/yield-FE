@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+
 import { Inter } from "next/font/google";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
@@ -27,14 +29,24 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
           <img src={logoSrc} alt="Injective Logo" />
         </div>
         <p className="font-helvetica-neue mt-8 text-xs font-extralight flex items-end text-gray-300">
-          Your Yield
+          Yield Upto
         </p>
         <div className="font-helvetica-neue text-4xl text-[#0ABAB5] flex items-end justify-between">
           <span>{tokenYield}</span>
-          <div className="text-[#f2f2f2] text-xs flex items-end">
-            <span className="border-r border-temporal px-4 ">Yield</span>
-            <span className="border-r border-temporal px-4 ">Principal</span>
-            <span className="pl-4">Earn</span>
+          <div className="text-[#f2f2f2] text-sm flex items-end">
+            {/* <span className="border-r border-temporal px-4 ">Yield</span> */}
+            {/* <span className="border-r border-temporal px-4 ">Trade</span> */}
+            <Link
+              href={"/trade"}
+              className={``}
+            >  <a className="border-r border-temporal px-4 cursor-pointer">Trade</a>
+            </Link>
+            <Link
+              href={"/trade"}
+              className={``}
+            >  <a className="pl-4">Mint</a>
+            </Link>
+            {/* <span className="pl-4">Mint</span> */}
           </div>
         </div>
       </div>

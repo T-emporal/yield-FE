@@ -619,7 +619,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         {" "}
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
           <span className="text-[16px] xl:text-lg font-bold text-[#f2f2f2] uppercase">
-            Place Order
+            Transact
           </span>
           <span
             className="-rotate-45 flex items-center cursor-pointer"
@@ -764,7 +764,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         {currentMode == "Trade" && (
           <div className=" px-6 2xl:px-16 ">
 
-            <div className="w-full pb-5">
+            <div className="w-full pb-5 ">
               <label htmlFor="price-top" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
                 Sell
               </label>
@@ -799,7 +799,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             </div>
 
 
-            <div className="w-full py-5">
+            <div className="w-full pb-5 ">
               <label htmlFor="price-bottom" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
                 Buy
               </label>

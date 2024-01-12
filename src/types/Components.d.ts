@@ -28,7 +28,7 @@ export interface TableDataItem {
 }
 
 
-export interface TableContainerProps {
-    data: TableDataItem[];
+interface TableContainerProps {
+    data: string[][];
     title: string;
 }
