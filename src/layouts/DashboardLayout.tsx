@@ -27,6 +27,7 @@ import { ChainId } from "@injectivelabs/ts-types";
 import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { json } from "stream/consumers";
+import Image from 'next/image';
 
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 declare global {
@@ -91,9 +92,35 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
   const [topLeftOrbPosition, setTopLeftOrbPosition] = useState<OrbPosition>({ top: '-5vh', left: '-10vw', bottom: '', right: '' });
   const [bottomRightOrbPosition, setBottomRightOrbPosition] = useState<OrbPosition>({ top: '', left: '', bottom: '-5vh', right: '-10vw' });
 
+  
 
   useEffect(() => {
     const currentPath = router.pathname;
+
+    const updateOrbPositionsBasedOnPath = (navName: string) => {
+
+      let newPositionTopLeft = { ...topLeftOrbPosition };
+      let newPositionBottomRight = { ...bottomRightOrbPosition };
+  
+      switch (navName) {
+        case "/":
+          newPositionTopLeft = { top: '5vw', left: '5vh' };
+          newPositionBottomRight = { bottom: '5vw', right: '5vw' };
+          break;
+        case "/trade":
+          newPositionTopLeft = { top: '10vw', left: '20vh' };
+          newPositionBottomRight = { bottom: '10vw', right: '20vw' };
+          break;
+        case "/portfolio":
+          newPositionTopLeft = { top: '15vw', left: '35vh' };
+          newPositionBottomRight = { bottom: '15vw', right: '15vw' };
+          break;
+      }
+  
+      setTopLeftOrbPosition(newPositionTopLeft);
+      setBottomRightOrbPosition(newPositionBottomRight);
+    };
+
     updateOrbPositionsBasedOnPath(currentPath);
   }, [router.pathname]);
 
@@ -144,29 +171,6 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
     }
   }, [publicAddress]);
 
-  const updateOrbPositionsBasedOnPath = (navName: string) => {
-
-    let newPositionTopLeft = { ...topLeftOrbPosition };
-    let newPositionBottomRight = { ...bottomRightOrbPosition };
-
-    switch (navName) {
-      case "/":
-        newPositionTopLeft = { top: '5vw', left: '5vh' };
-        newPositionBottomRight = { bottom: '5vw', right: '5vw' };
-        break;
-      case "/trade":
-        newPositionTopLeft = { top: '10vw', left: '20vh' };
-        newPositionBottomRight = { bottom: '10vw', right: '20vw' };
-        break;
-      case "/portfolio":
-        newPositionTopLeft = { top: '15vw', left: '15vh' };
-        newPositionBottomRight = { bottom: '15vw', right: '15vw' };
-        break;
-    }
-
-    setTopLeftOrbPosition(newPositionTopLeft);
-    setBottomRightOrbPosition(newPositionBottomRight);
-  };
 
   async function connectWallet() {
 
@@ -310,10 +314,12 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
 
       <header className="flex items-center justify-between">
         <div className="flex items-center bg-fixed z-10">
-          <img
+          <Image
             src={"/TemporalLogoSmall.svg"}
             alt="Temporal Logo"
             className="ml-16"
+            width={100} 
+            height={100}
           />
           {navigation.map((singleNav) => (
             <Link
@@ -324,13 +330,16 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
                 : "text-[#f2f2f2]"
                 }`}
             >
-              <img
+              <Image
                 src={
                   singleNav.name == activePage
                     ? singleNav.iconSelected
                     : singleNav.icon
                 }
-                className="!w-4 !h-4 mr-2"
+                alt="Navigation Icons"
+                height={20}
+                width={20}
+                className="mr-2 "
               />{" "}
               {singleNav.name}
             </Link>

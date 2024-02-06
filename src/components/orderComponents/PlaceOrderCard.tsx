@@ -27,7 +27,8 @@ import { Network, getNetworkEndpoints } from '@injectivelabs/networks';
 import { ChainId } from "@injectivelabs/ts-types";
 
 import { BigNumberInBase } from "@injectivelabs/utils";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
 import {
@@ -63,7 +64,13 @@ const poolSummaryData = [
   ['PT', '600k', '$700k'],
   ['Asset', '1.32M', '$1.3M'],
 ];
-
+const durationOptions = [
+  { id: 1, name: '1 day' },
+  { id: 2, name: '7 days' },
+  { id: 3, name: '30 days' },
+  { id: 4, name: '60 days' },
+  { id: 5, name: '90 days' },
+];
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(" ");
@@ -83,20 +90,40 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   const [collateralLevel, setCollateralLevel] = useState(220);
   const [selectedChain, setSelectedChain] = useState(chains[0]);
   const [mintMode, setMintMode] = useState('mint');
-  const [selectedMintChain, setSelectedMintChain] = useState(chains[0]);
 
-  const [PTValue, setPTValue] = useState('');
-  const [YTValue, setYTValue] = useState('');
-  const [isPTActive, setIsPTActive] = useState(true); // State to track which input is active
+  const [selectedMintChain, setSelectedMintChain] = useState(chains[0]);
+  const [selectedMintDuration, setselectedMintDuration] = useState(durationOptions[2]);
+
+  const [PTRedeemAmount, setPTRedeemAmount] = useState('');
+  const [YTRedeemAmount, setYTRedeemAmount] = useState('');
+
+  const [PTTradeValue, setPTTradeValue] = useState('');
+  const [YTTradeValue, setYTTradeValue] = useState('');
+  const [isPTActive, setIsPTActive] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const router = useRouter();
+  useEffect(() => {
+    const { token, tab } = router.query;
+    
+    const matchingChain = chains.find(chain => chain.name === token);
+
+    if (tab === 'mint' && matchingChain) {
+      setCurrentMode('Mint');
+      setSelectedMintChain(matchingChain); // Set the entire chain object
+    } else if (tab === 'trade' && matchingChain) {
+      setCurrentMode('Trade');
+      setSelectedChain(matchingChain); // Set the entire chain object
+    }
+  }, [router.query]);
 
   const switchValues = () => {
     setIsAnimating(true);
 
-    const newPTValue = YTValue;
-    const newYTValue = PTValue;
-    setPTValue(newPTValue);
-    setYTValue(newYTValue);
+    const newPTTradeValue = YTTradeValue;
+    const newYTTradeValue = PTTradeValue;
+    setPTTradeValue(newPTTradeValue);
+    setYTTradeValue(newYTTradeValue);
 
     setIsPTActive(!isPTActive);
 
@@ -370,7 +397,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
     async function y() {
       let balance = await getBalance();
       if (balance !== undefined) {
-        setCurrentBalance(Number(balance));
+        setCurrentBalance(Number(balance) / 1e+18);
       } else {
         setCurrentBalance(0);
       }
@@ -383,7 +410,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
     <>
       <div className="flex items-center">
         <div className="w-full pb-5">
-          <div className="w-full flex justify-between items-center">
+          <div className="w-full flex justify-between items-center pb-2">
             <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
               Input
             </label>
@@ -397,7 +424,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
                 <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center">
                   <span className=" truncate flex items-center text-gray-400">
-                    <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mr-5 h-6" />
+                    <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} className="mr-5" />
                     {selectedMintChain.name}
                   </span>
                   <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -421,7 +448,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                       <Listbox.Option key={chain.name} value={chain} as={Fragment}>
                         {({ active, selected }) => (
                           <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
-                            <img src={chain.icon} alt={chain.name} className="w-10 h-10 px-3" />
+                            <Image src={chain.icon} alt={chain.name} width={40} height={40} className="px-3" />
                             {chain.name}
                           </li>
                         )}
@@ -434,11 +461,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
             </div>
             <input
-              type="text"
+              type="number"
               name="mint-amount"
               id="mint-amount"
-              className="flex-1 border-0 border-l border-temporal50 py-4 text-white bg-transparent focus:outline-none "
-              placeholder=""
+              className="flex-1 border-0 border-l text-center border-temporal50 py-4 text-white bg-transparent focus:outline-none "
+              placeholder="Enter amount"
               aria-describedby="mint-amount"
               value={mintAmount}
               onChange={(e) => setMintAmount(e.target.value)}
@@ -447,39 +474,69 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
       </div>
 
-
-
-      <div className="flex justify-center">
-        <ArrowDownCircleIcon
-          strokeWidth={2}
-          className="w-7 h-7 text-temporal50"
-        />
+      {/* Duration information */}
+      <div className="flex justify-center my-4">
+        <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
+          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-2 px-6 flex items-center relative">
+            <span className="block truncate">{selectedMintDuration.name}</span>
+            <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
+          </Listbox.Button>
+          <Transition
+            as={Fragment}
+            enter="transition transform origin-top duration-200 ease-out"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="transition transform origin-top duration-200 ease-in"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <Listbox.Options className="absolute mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5" style={{ width: 'auto' }}>
+              {durationOptions.map((option) => (
+                <Listbox.Option
+                  key={option.id}
+                  className={({ active }) =>
+                    `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
+                  }
+                  value={option}
+                >
+                  {({ selected, active }) => (
+                    <>
+                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                        {option.name}
+                      </span>
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </Listbox>
       </div>
 
-      {/* Outputs based on the input, for now, they are static */}
-      <div className="flex flex-col">
-        <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
-          <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
-            <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
-            <div>
-              <div className="text-gray-400">PT {selectedMintChain.name}</div>
-              <div className="text-gray-400 text-xs">30 Dec 2030</div>
-            </div>
+      {/* Outputs */}
+      <div className="flex justify-around items-center flex-wrap">
+        <div className="w-full text-center mt-4">
+          <div className="text-gray-100 text-sm font-medium">Output</div>
+        </div>
+
+        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 mr-2">
+          <div className="w-full flex justify-center items-center py-4">
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}/>
+            <div className="text-gray-400 text-center ml-4">PT {selectedMintChain.name}</div>
           </div>
-          <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+          <div className="w-full border-t-2 border-temporal50"></div>
+          <span className="py-4 text-center text-gray-400 bg-transparent">
             0
           </span>
         </div>
 
-        <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
-          <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
-            <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
-            <div>
-              <div className="text-gray-400">YT {selectedMintChain.name}</div>
-              <div className="text-gray-400 text-xs">30 Dec 2030</div>
-            </div>
+        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 ml-2">
+          <div className="w-full flex justify-center items-center py-4">
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}/>
+            <div className="text-gray-400 text-center ml-4">YT {selectedMintChain.name}</div>
           </div>
-          <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+          <div className="w-full border-t-2 border-temporal50"></div>
+          <span className="py-4 text-center text-gray-400 bg-transparent">
             0
           </span>
         </div>
@@ -489,85 +546,24 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
   const renderRedeemView = () => (
     <>
-      <div className="flex items-center">
-        <div className="w-full pb-5">
-          <label htmlFor="mint-amount" className="text-xs xl:text-sm font-medium leading-6 text-gray-100">
-            Tip: Before maturity, both PT and YT are required for redemption. After maturity, only PT is required.
-          </label>
-          <div className="w-full flex justify-between items-center mt-5">
-            <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
-              Input
-            </label>
-            <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
-              Balance: {currentBalance}
-            </label>
-          </div>
-
-          <div className="flex flex-col">
-            <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-1">
-              <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
-                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
-                <div>
-                  <div className="text-gray-400">PT {selectedMintChain.name}</div>
-                  <div className="text-gray-400 text-xs">30 Dec 2030</div>
-                </div>
-              </div>
-              <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
-                0
-              </span>
-            </div>
-
-
-            <div className="w-full flex justify-between items-center mt-5">
-              <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
-
-              </label>
-              <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
-                Balance: {currentBalance}
-              </label>
-            </div>
-
-
-            <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-1">
-              <div className="flex-1 flex items-center border-r-2 border-temporal50 py-2 ">
-                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mx-5 h-6 " />
-                <div>
-                  <div className="text-gray-400">YT {selectedMintChain.name}</div>
-                  <div className="text-gray-400 text-xs">30 Dec 2030</div>
-                </div>
-              </div>
-              <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
-                0
-              </span>
-            </div>
-          </div>
-
-        </div>
+      <div className="w-full flex justify-between items-center">
+        <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+          Input
+        </label>
+        <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
+          Balance: {currentBalance}
+        </label>
       </div>
-
-
-
-      <div className="flex justify-center">
-        <ArrowDownCircleIcon
-          strokeWidth={2}
-          className="w-7 h-7 text-temporal50"
-        />
-      </div>
-
-      <div className="rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-5  flex">
-        <div className="relative pr-5 flex-1 border-r border-temporal50">
+      <div className="flex items-center justify-between w-full pb-5 space-x-4">
+        {/* PT Input Box */}
+        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
           <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
-            <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center">
-              <span className=" truncate flex items-center text-gray-400">
-                <img src={selectedMintChain.icon} alt={selectedMintChain.name} className="w-6 mr-5 h-6" />
+            <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center rounded-md  ">
+              <span className="truncate flex items-center text-gray-400">
+                <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} className=" mr-3" />
                 {selectedMintChain.name}
               </span>
-              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </span>
+              <ChevronDownIcon className="ml-auto h-5 w-5 text-gray-400" aria-hidden="true" />
             </Listbox.Button>
             <Transition
               as={Fragment}
@@ -578,12 +574,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Listbox.Options className="absolute mt-1 w-full  bg-[#15191D] rounded-md shadow-lg z-100">
+              <Listbox.Options className="absolute mt-1 w-1/2 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-10">
                 {chains.map((chain) => (
                   <Listbox.Option key={chain.name} value={chain} as={Fragment}>
-                    {({ active, selected }) => (
+                    {({ active }) => (
                       <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
-                        <img src={chain.icon} alt={chain.name} className="w-10 h-10 px-3" />
+                        <Image src={chain.icon} alt={chain.name} width={25} height={25} className="mr-3" />
                         {chain.name}
                       </li>
                     )}
@@ -592,24 +588,115 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               </Listbox.Options>
             </Transition>
           </Listbox>
-
-
+          <div className="w-full border-t-2 border-temporal50"></div>
+          <input
+            type="number"
+            className="w-full py-4 px-3 text-center border-none text-white bg-transparent focus:outline-none"
+            placeholder="PT Amount"
+            value={PTRedeemAmount}
+            onChange={(e) => setPTRedeemAmount(e.target.value)}
+          />
         </div>
-        <input
-          type="text"
-          name="mint-amount"
-          id="mint-amount"
-          className="flex-1 border-0 border-l border-temporal50 py-4 text-white bg-transparent focus:outline-none "
-          placeholder=""
-          aria-describedby="mint-amount"
-          value={mintAmount}
-          onChange={(e) => setMintAmount(e.target.value)}
-        />
+
+        {/* YT Input Box */}
+        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
+          <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
+            <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center rounded-md  ">
+              <span className="truncate flex items-center text-gray-400">
+                <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}className="mr-3" />
+                {selectedMintChain.name}
+              </span>
+              <ChevronDownIcon className="ml-auto h-5 w-5 text-gray-400" aria-hidden="true" />
+            </Listbox.Button>
+            <Transition
+              as={Fragment}
+              enter="transition transform origin-top duration-200 ease-out"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="transition transform origin-top duration-200 ease-in"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Listbox.Options className="absolute mt-1 w-1/2 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-10">
+                {chains.map((chain) => (
+                  <Listbox.Option key={chain.name} value={chain} as={Fragment}>
+                    {({ active }) => (
+                      <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
+                        <Image src={chain.icon} alt={chain.name} width={25} height={25} className="mr-3" />
+                        {chain.name}
+                      </li>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </Listbox>
+          <div className="w-full border-t-2 border-temporal50"></div>
+          <input
+            type="number"
+            className="w-full py-4 px-3 text-center border-none text-white bg-transparent focus:outline-none"
+            placeholder="YT Amount"
+            value={YTRedeemAmount}
+            onChange={(e) => setYTRedeemAmount(e.target.value)}
+          />
+        </div>
       </div>
 
+      {/* Duration information */}
+      <div className="flex justify-center my-4">
+        <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
+          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-2 px-6 flex items-center relative">
+            <span className="block truncate">{selectedMintDuration.name}</span>
+            <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
+          </Listbox.Button>
+          <Transition
+            as={Fragment}
+            enter="transition transform origin-top duration-200 ease-out"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="transition transform origin-top duration-200 ease-in"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <Listbox.Options className="absolute mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5" style={{ width: 'auto' }}>
+              {durationOptions.map((option) => (
+                <Listbox.Option
+                  key={option.id}
+                  className={({ active }) =>
+                    `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
+                  }
+                  value={option}
+                >
+                  {({ selected, active }) => (
+                    <>
+                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                        {option.name}
+                      </span>
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </Listbox>
+      </div>
 
+      {/* Output Section */}
+      <div className="flex justify-around items-center flex-wrap">
+        <div className="w-full text-center mt-4">
+          <div className="text-gray-100 text-sm font-medium">Output</div>
+        </div>
 
-
+        <div className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 mr-2">
+          <div className="w-full flex flex-1 justify-center border-r-2 border-temporal50 items-center py-4">
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
+            <div className="text-gray-400 text-center ml-4">PT {selectedMintChain.name}</div>
+          </div>
+          <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+            0
+          </span>
+        </div>
+      </div>
     </>
   );
 
@@ -687,10 +774,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               <div className="relative mt-4">
                 <Listbox.Button className="relative w-[150px] left-[50%] -translate-x-[50%] cursor-default rounded-lg  py-2 pl-3 pr-10 text-left  ">
                   <span className=" truncate flex items-center text-[#f2f2f2]">
-                    <img
+                    <Image
                       alt={selectedChain.name}
                       src={selectedChain.icon}
-                      className="w-5 mr-2"
+                      width={25} 
+                      height={25}
+                      className="mr-2"
                     />{" "}
                     {selectedChain.name}
                   </span>
@@ -726,10 +815,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                               className={`flex items-center truncate ${selectedChain ? "font-medium" : "font-normal"
                                 }`}
                             >
-                              <img
+                              <Image
                                 alt={chain.name}
                                 src={chain.icon}
-                                className="w-5 mr-2"
+                                width={25} 
+                                height={25}
+                                className="mr-2"
                               />{" "}
                               {chain.name}
                               {chain.name == selectedChain.name && (
@@ -772,14 +863,14 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                 <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2">
                   <span className={`px-5 ${isPTActive ? 'text-blue-500' : 'text-orange-500'}`}>{isPTActive ? 'PT' : 'YT'}</span>
                   <input
-                    type="text"
+                    type="number"
                     name="price-top"
                     id="price-top"
                     className="flex-grow border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
                     placeholder="0.00"
                     aria-describedby="price-addon apy-addon"
-                    value={isPTActive ? PTValue : YTValue}
-                    onChange={(e) => isPTActive ? setPTValue(e.target.value) : setYTValue(e.target.value)}
+                    value={isPTActive ? PTTradeValue : YTTradeValue}
+                    onChange={(e) => isPTActive ? setPTTradeValue(e.target.value) : setYTTradeValue(e.target.value)}
                   />
                   <div className="flex flex-col items-end pr-3">
                     <span className="text-gray-500 text-xs" id="price-addon">{isPTActive ? 'Px 0.0001' : 'Px 0.999'}</span>
@@ -807,14 +898,14 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                 <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2">
                   <span className={`px-5 ${isPTActive ? 'text-orange-500' : 'text-blue-500'}`}>{isPTActive ? 'YT' : 'PT'}</span>
                   <input
-                    type="text"
+                    type="number"
                     name="price-bottom"
                     id="price-bottom"
                     className="flex-grow border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
                     placeholder="0.00"
                     aria-describedby="price-addon apy-addon"
-                    value={isPTActive ? YTValue : PTValue}
-                    onChange={(e) => isPTActive ? setYTValue(e.target.value) : setPTValue(e.target.value)}
+                    value={isPTActive ? YTTradeValue : PTTradeValue}
+                    onChange={(e) => isPTActive ? setYTTradeValue(e.target.value) : setPTTradeValue(e.target.value)}
                   />
                   <div className="flex flex-col items-end pr-3">
                     <span className="text-gray-500 text-xs" id="price-addon">{isPTActive ? 'Px 0.999' : 'Px 0.0001'}</span>
@@ -833,7 +924,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               </label>
               <div className="relative rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-3">
                 <input
-                  type="text"
+                  type="number"
                   name="time"
                   id="time"
                   className="block w-full border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none"
@@ -881,7 +972,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             <div className="rounded-md border-2 border-temporal50 bg-teal-950/50 text-white p-2 mt-4 flex justify-between items-center">
               <label className="p-1 mr-2">LP</label>
               <input
-                type="text"
+                type="number"
                 placeholder="Enter value"
                 value={poolValue}
                 onChange={(e) => setPoolValue(e.target.value)}
@@ -938,7 +1029,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         }} onClick={() => {
           switch (currentMode) {
             case "Trade":
-              console.log("YT Value: " + YTValue + " PT Value: " + PTValue)
+              console.log("YT Value: " + YTTradeValue + " PT Value: " + PTTradeValue)
 
               return placeTradeOrder(
                 quantity,
@@ -949,7 +1040,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             case "Earn":
               return placeEarnOrder(quantity, duration, selectedChain.name);
             case "Mint":
-              return placeMintOrder(quantity, duration, selectedChain.name);
+              return placeMintOrder(quantity, selectedMintDuration.name, selectedChain.name);
             default:
               break;
           }

@@ -6,6 +6,7 @@ import { ChainGrpcWasmApi, IndexerGrpcOracleApi } from "@injectivelabs/sdk-ts";
 import { WalletStrategy } from '@injectivelabs/wallet-ts'
 import { Web3Exception } from '@injectivelabs/exceptions'
 import { ChainId } from "@injectivelabs/ts-types";
+import Image from 'next/image';
 
 import { TableContainerProps } from '@/types/Components';
 
@@ -166,7 +167,7 @@ const TableContainer = ({ data, title }: TableContainerProps) => {
     };
 
     fetchPrices();
-  }, []);
+  }, [uniqueChains]);
 
   const calculateValue = (chain: string, quantity: number): string => {
     const price = prices[chain];
@@ -255,7 +256,7 @@ const TableContainer = ({ data, title }: TableContainerProps) => {
                   return (
                     <td key={key} className="whitespace-nowrap px-3 py-2 xl:py-3 text-xs xl:text-sm text-[#f2f2f2] pl-5">
                       <span className="flex items-center">
-                        <img src={getAssetIcon(cell)} alt="" className="w-4 h-4 mr-2" />
+                        <Image src={getAssetIcon(cell)|| './logo_default.svg'} alt="" width={20} height={20} className="mr-2" />
                         {cell}
                       </span>
                     </td>

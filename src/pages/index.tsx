@@ -26,7 +26,7 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
           <p className="font-helvetica-neue pb-16 text-4xl text-[#f2f2f2]">
             {token}
           </p>
-          <img src={logoSrc} alt="Injective Logo" />
+          <Image src={logoSrc} alt="Injective Logo" width={100} height={100}/>
         </div>
         <p className="font-helvetica-neue mt-8 text-xs font-extralight flex items-end text-gray-300">
           Yield Upto
@@ -37,14 +37,16 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
             {/* <span className="border-r border-temporal px-4 ">Yield</span> */}
             {/* <span className="border-r border-temporal px-4 ">Trade</span> */}
             <Link
-              href={"/trade"}
+              href={`/trade?tab=trade&token=${"st"+token}`}
               className={``}
-            >  <a className="border-r border-temporal px-4 cursor-pointer">Trade</a>
+            // >  <a><span className="border-r border-temporal px-4 cursor-pointer">Trade</span></a>
+            >  <span className="border-r border-temporal px-4 cursor-pointer">Trade</span>
             </Link>
             <Link
-              href={"/trade"}
+              href={`/trade?tab=mint&token=${"st"+token}`}
               className={``}
-            >  <a className="pl-4">Mint</a>
+            // > <a> <span className="pl-4">Mint</span></a>
+            > <span className="pl-4">Mint</span>
             </Link>
             {/* <span className="pl-4">Mint</span> */}
           </div>
@@ -56,6 +58,7 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
 export default function Home() {
 
   return (
+    
     <DashboardLayout activePage={"Markets"}>
       <section className="grid grid-cols-3 gap-[67px] mt-[80px] mx-auto max-w-[1280px]">
         <SingleTokenCard
@@ -86,7 +89,7 @@ export default function Home() {
           gradient={
             "linear-gradient(180deg, rgba(61, 61, 61, 0.25) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.3)"
           }
-          token="stETH"
+          token="ETH"
           tokenYield="4.56%"
           logoSrc="./logo_stEth.svg"
         />
@@ -102,7 +105,7 @@ export default function Home() {
           gradient={
             "linear-gradient(180deg, rgba(120, 43, 199, 0.1)  20%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.3)"
           }
-          token="wMATIC"
+          token="MATIC"
           tokenYield="6.84%"
           logoSrc="./logo_matic.svg"
         />
