@@ -1,10 +1,11 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 import {
   ArrowSmallLeftIcon,
   ArrowSmallRightIcon,
   ArrowsPointingOutIcon,
   ArrowDownCircleIcon,
   CheckIcon,
+  ClockIcon,
   ChevronDownIcon,
   ArrowPathRoundedSquareIcon,
   ArrowPathIcon,
@@ -29,6 +30,7 @@ import { ChainId } from "@injectivelabs/ts-types";
 import { BigNumberInBase } from "@injectivelabs/utils";
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Xarrow from "react-xarrows";
 
 import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
 import {
@@ -81,6 +83,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   const [currentPrice, setCurrentPrice] = useState(0);
   const [currentBalance, setCurrentBalance] = useState(0);
   const [duration, setDuration] = useState("");
+  const [selectedTradeDuration, setSelectedTradeDuration] = useState(durationOptions[2]);
   const [priceSell, setPriceSell] = useState("10");
   const [priceBuy, setPriceBuy] = useState("10");
   const [mintAmount, setMintAmount] = useState('');
@@ -93,9 +96,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
   const [selectedMintChain, setSelectedMintChain] = useState(chains[0]);
   const [selectedMintDuration, setselectedMintDuration] = useState(durationOptions[2]);
+  const [mintDuration, setMintDuration] = useState('');
 
-  const [PTRedeemAmount, setPTRedeemAmount] = useState('');
-  const [YTRedeemAmount, setYTRedeemAmount] = useState('');
+
+  const [RedeemAmount, setRedeemAmount] = useState('');
 
   const [PTTradeValue, setPTTradeValue] = useState('');
   const [YTTradeValue, setYTTradeValue] = useState('');
@@ -105,7 +109,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   const router = useRouter();
   useEffect(() => {
     const { token, tab } = router.query;
-    
+
     const matchingChain = chains.find(chain => chain.name === token);
 
     if (tab === 'mint' && matchingChain) {
@@ -408,19 +412,20 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
   const renderMintView = () => (
     <>
+
       <div className="flex items-center">
-        <div className="w-full pb-5">
-          <div className="w-full flex justify-between items-center pb-2">
+        <div className="relative w-full mt-2 pb-0">
+          {/* <div className="w-full flex justify-between items-center pb-2">
             <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
               Input
             </label>
             <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
               Balance: {currentBalance}
             </label>
-          </div>
+          </div> */}
 
-          <div className="rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2  flex">
-            <div className="relative pr-5 flex-1 border-r border-temporal50">
+          <div id="mint-input-box" className="rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2  flex">
+            <div className="relative pr-6 flex-1 border-r border-temporal50">
               <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
                 <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center">
                   <span className=" truncate flex items-center text-gray-400">
@@ -443,7 +448,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <Listbox.Options className="absolute mt-1 w-full  bg-[#15191D] rounded-md shadow-lg z-100">
+                  <Listbox.Options className="absolute mt-1 w-full  bg-[#15191D] rounded-md shadow-lg z-1000">
                     {chains.map((chain) => (
                       <Listbox.Option key={chain.name} value={chain} as={Fragment}>
                         {({ active, selected }) => (
@@ -457,8 +462,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                   </Listbox.Options>
                 </Transition>
               </Listbox>
-
-
             </div>
             <input
               type="number"
@@ -474,70 +477,83 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
       </div>
 
+      <Xarrow
+        start="mint-input-box"
+        startAnchor={"bottom"}
+        end="mint-duration-box"
+        endAnchor={"top"}
+        showHead={false}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        curveness={0.3}
+      />
+
       {/* Duration information */}
-      <div className="flex justify-center my-4">
-        <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
-          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-2 px-6 flex items-center relative">
-            <span className="block truncate">{selectedMintDuration.name}</span>
-            <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            enter="transition transform origin-top duration-200 ease-out"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="transition transform origin-top duration-200 ease-in"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <Listbox.Options className="absolute mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5" style={{ width: 'auto' }}>
-              {durationOptions.map((option) => (
-                <Listbox.Option
-                  key={option.id}
-                  className={({ active }) =>
-                    `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
-                  }
-                  value={option}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                        {option.name}
-                      </span>
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </Listbox>
+      <div className="flex justify-center my-14">
+        <div id="mint-duration-box" className="flex items-center bg-neutral-950/50 rounded-full border-2 border-temporal50 text-gray-400">
+          <div className="pl-3">
+            <ClockIcon className="h-5 w-5 mr-4 text-gray-400" aria-hidden="true" />
+          </div>
+          <input
+            type="number"
+            value={mintDuration}
+            onChange={(e) => setMintDuration(e.target.value)}
+            className="py-2 px-6 w-28 border-0 text-gray-400 bg-transparent focus:outline-none outline-none"
+            placeholder="Duration"
+          />
+          <span className="px-4 py-2 text-gray-400">days</span>
+        </div>
       </div>
 
-      {/* Outputs */}
-      <div className="flex justify-around items-center flex-wrap">
-        <div className="w-full text-center mt-4">
-          <div className="text-gray-100 text-sm font-medium">Output</div>
-        </div>
+      <Xarrow
+        start="mint-duration-box"
+        startAnchor={"bottom"}
+        end="mint-output-box-1"
+        endAnchor={"top"}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        path="straight"
+        curveness={0}
+        zIndex={-10}
+      />
+      <Xarrow
+        start="mint-duration-box"
+        startAnchor={"bottom"}
+        end="mint-output-box-2"
+        endAnchor={"top"}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        path="straight"
+        curveness={0}
+        zIndex={-10}
+      />
 
-        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 mr-2">
+      {/* Outputs */}
+      <div className="flex justify-around items-center flex-wrap ">
+
+        {/* <div id="mint-output-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-900/40 mt-4 mr-2"> */}
+        <div id="mint-output-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mr-2">
           <div className="w-full flex justify-center items-center py-4">
-            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}/>
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
             <div className="text-gray-400 text-center ml-4">PT {selectedMintChain.name}</div>
           </div>
-          <div className="w-full border-t-2 border-temporal50"></div>
+          <div className="w-full border-temporal50"></div>
+          {/* <div className="w-full border-t-2 border-temporal50"></div> */}
           <span className="py-4 text-center text-gray-400 bg-transparent">
-            0
+            {mintAmount || '0'}
           </span>
         </div>
 
-        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 ml-2">
+        {/* <div id="mint-output-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-900/40 mt-4 ml-2"> */}
+        <div id="mint-output-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 ml-2">
           <div className="w-full flex justify-center items-center py-4">
-            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}/>
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
             <div className="text-gray-400 text-center ml-4">YT {selectedMintChain.name}</div>
           </div>
-          <div className="w-full border-t-2 border-temporal50"></div>
+          <div className="w-full border-temporal50"></div>
+          {/* <div className="w-full border-t-2 border-temporal50"></div> */}
           <span className="py-4 text-center text-gray-400 bg-transparent">
-            0
+            {mintAmount || '0'}
           </span>
         </div>
       </div>
@@ -546,22 +562,22 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
   const renderRedeemView = () => (
     <>
-      <div className="w-full flex justify-between items-center">
+      {/* <div className="w-full flex justify-between items-center">
         <label htmlFor="mint-amount" className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
           Input
         </label>
         <label className="text-sm xl:text-sm font-medium leading-6 text-gray-100">
           Balance: {currentBalance}
         </label>
-      </div>
-      <div className="flex items-center justify-between w-full pb-5 space-x-4">
+      </div> */}
+      <div className="flex items-center justify-between w-full space-x-4">
         {/* PT Input Box */}
-        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
+        <div id="redeem-input-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
           <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
             <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center rounded-md  ">
               <span className="truncate flex items-center text-gray-400">
                 <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} className=" mr-3" />
-                {selectedMintChain.name}
+                {'PT ' + selectedMintChain.name}
               </span>
               <ChevronDownIcon className="ml-auto h-5 w-5 text-gray-400" aria-hidden="true" />
             </Listbox.Button>
@@ -580,7 +596,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                     {({ active }) => (
                       <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
                         <Image src={chain.icon} alt={chain.name} width={25} height={25} className="mr-3" />
-                        {chain.name}
+                        {'PT ' + chain.name}
                       </li>
                     )}
                   </Listbox.Option>
@@ -593,57 +609,47 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             type="number"
             className="w-full py-4 px-3 text-center border-none text-white bg-transparent focus:outline-none"
             placeholder="PT Amount"
-            value={PTRedeemAmount}
-            onChange={(e) => setPTRedeemAmount(e.target.value)}
+            value={RedeemAmount}
+            onChange={(e) => setRedeemAmount(e.target.value)}
           />
         </div>
 
         {/* YT Input Box */}
-        <div className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
-          <Listbox value={selectedMintChain} onChange={setSelectedMintChain}>
-            <Listbox.Button className="cursor-default text-gray-400 py-4 px-3 text-left w-full flex items-center rounded-md  ">
-              <span className="truncate flex items-center text-gray-400">
-                <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25}className="mr-3" />
-                {selectedMintChain.name}
-              </span>
-              <ChevronDownIcon className="ml-auto h-5 w-5 text-gray-400" aria-hidden="true" />
-            </Listbox.Button>
-            <Transition
-              as={Fragment}
-              enter="transition transform origin-top duration-200 ease-out"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="transition transform origin-top duration-200 ease-in"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Listbox.Options className="absolute mt-1 w-1/2 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-10">
-                {chains.map((chain) => (
-                  <Listbox.Option key={chain.name} value={chain} as={Fragment}>
-                    {({ active }) => (
-                      <li className={`${active ? "bg-gray-700 text-[#f2f2f2]" : "text-[#f2f2f2]"} flex items-center px-4 py-2 cursor-pointer`}>
-                        <Image src={chain.icon} alt={chain.name} width={25} height={25} className="mr-3" />
-                        {chain.name}
-                      </li>
-                    )}
-                  </Listbox.Option>
-                ))}
-              </Listbox.Options>
-            </Transition>
-          </Listbox>
-          <div className="w-full border-t-2 border-temporal50"></div>
-          <input
-            type="number"
-            className="w-full py-4 px-3 text-center border-none text-white bg-transparent focus:outline-none"
-            placeholder="YT Amount"
-            value={YTRedeemAmount}
-            onChange={(e) => setYTRedeemAmount(e.target.value)}
-          />
+        <div id="redeem-input-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
+          <div className="w-full flex flex-1  justify-center  border-temporal50 items-center py-4">
+            {/* <div className="w-full flex flex-1  justify-center border-r-2 border-temporal50 items-center py-4"> */}
+            <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
+            <div className="text-gray-400 text-center ml-4">YT {selectedMintChain.name}</div>
+          </div>
+          <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
+            {RedeemAmount || 0}
+          </span>
         </div>
       </div>
 
+      <Xarrow
+        start="redeem-input-box-1"
+        startAnchor={"bottom"}
+        end="redeem-duration-box"
+        endAnchor={"top"}
+        showHead={false}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        curveness={0}
+      />
+      <Xarrow
+        start="redeem-input-box-2"
+        startAnchor={"bottom"}
+        end="redeem-duration-box"
+        endAnchor={"top"}
+        showHead={false}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        curveness={0}
+      />
+
       {/* Duration information */}
-      <div className="flex justify-center my-4">
+      <div id="redeem-duration-box" className="flex justify-center my-12">
         <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
           <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-2 px-6 flex items-center relative">
             <span className="block truncate">{selectedMintDuration.name}</span>
@@ -681,19 +687,28 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </Listbox>
       </div>
 
+      <Xarrow
+        start="redeem-duration-box"
+        startAnchor={"bottom"}
+        end="redeem-output-box"
+        endAnchor={"top"}
+        color={"#00A9A433"}
+        strokeWidth={2}
+        curveness={0.2}
+        zIndex={-10}
+      />
+
       {/* Output Section */}
       <div className="flex justify-around items-center flex-wrap">
-        <div className="w-full text-center mt-4">
-          <div className="text-gray-100 text-sm font-medium">Output</div>
-        </div>
 
-        <div className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 mr-2">
-          <div className="w-full flex flex-1 justify-center border-r-2 border-temporal50 items-center py-4">
+        <div id="redeem-output-box" className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 ">
+          <div className="w-full flex flex-1  justify-center  border-temporal50 items-center py-4">
+            {/* <div className="w-full flex flex-1  justify-center border-r-2 border-temporal50 items-center py-4"> */}
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
-            <div className="text-gray-400 text-center ml-4">PT {selectedMintChain.name}</div>
+            <div className="text-gray-400 text-center ml-4">{selectedMintChain.name}</div>
           </div>
           <span className="flex-1 py-4 text-center text-gray-400 bg-transparent">
-            0
+            {RedeemAmount || 0}
           </span>
         </div>
       </div>
@@ -734,7 +749,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
         {/* CMNTS: Tabs for the order card */}
 
-        <div className="border-b-[0.5px] border-gray-700">
+        {/* <div className="border-b-[0.5px] border-gray-700">
           <nav
             className=" grid grid-cols-3 justify-items-center"
             aria-label="Tabs"
@@ -758,6 +773,40 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               </span>
             ))}
           </nav>
+        </div> */}
+        <div className="border-b-[0.5px] border-gray-700">
+          <nav
+            className="grid grid-cols-3 justify-items-center"
+            aria-label="Tabs"
+          >
+            {tabs.map((tab) => {
+              const displayName = tab.name === "Earn" ? "Earn (TBD)" : tab.name;
+
+              return (
+                <span
+                  key={tab.name}
+                  onClick={() => {
+                    // Prevent setting the current mode and line color if the tab is "Earn"
+                    if (tab.name !== "Earn") {
+                      setCurrentMode(tab.name);
+                      setLineColor(tab.lineColor);
+                    }
+                  }}
+                  className={classNames(
+                    tab.name == currentMode
+                      ? "border-temporal text-temporal"
+                      : "border-transparent text-[#f2f2f2] hover:border-gray-300",
+                    "whitespace-nowrap border-b-2 py-2 px-1 text-sm xl:text-[16px] block w-full text-center font-normal uppercase",
+                    // Use "cursor-default" for "Earn" to indicate it's not clickable
+                    tab.name === "Earn" ? "cursor-default" : "cursor-pointer"
+                  )}
+                  aria-current={tab.current ? "page" : undefined}
+                >
+                  {displayName}
+                </span>
+              );
+            })}
+          </nav>
         </div>
 
         {/* CMNTS: END Tabs for the order card */}
@@ -777,7 +826,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                     <Image
                       alt={selectedChain.name}
                       src={selectedChain.icon}
-                      width={25} 
+                      width={25}
                       height={25}
                       className="mr-2"
                     />{" "}
@@ -818,7 +867,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                               <Image
                                 alt={chain.name}
                                 src={chain.icon}
-                                width={25} 
+                                width={25}
                                 height={25}
                                 className="mr-2"
                               />{" "}
@@ -841,14 +890,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
         )}
 
-
-
         {/* CMNTS: END The Chain selector in the order card */}
 
-        {/* CMNTS: The order form */}
 
-        {/* <div className={`flex items-center space-x-4 w-full px-6 2xl:px-16 ${currentMode !== "Trade" ? "mb-4" : ""}`}>
-        </div> */}
+
+        {/* CMNTS: The order form */}
 
         {/* CMNTS: The order form only for Trade mode */}
 
@@ -923,7 +969,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                 Duration
               </label>
               <div className="relative rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-3">
-                <input
+
+                {/* <input
                   type="number"
                   name="time"
                   id="time"
@@ -937,13 +984,49 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                   <span className="text-gray-500 sm:text-sm" id="price-currency">
                     Days
                   </span>
-                </div>
+                </div> */}
+                <Listbox value={selectedTradeDuration} onChange={setSelectedTradeDuration}>
+                  <Listbox.Button className="flex justify-between items-center relative w-full border-0 rounded-md py-3 xl:py-4 px-7 text-white bg-transparent focus:outline-none">
+                    <span className="block truncate">{selectedMintDuration.name}</span>
+                    <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    enter="transition transform origin-top duration-200 ease-out"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="transition transform origin-top duration-200 ease-in"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                  >
+                    {/* Removed style={{ width: 'auto' }} to allow Listbox.Options to expand to the full width of its parent */}
+                    <Listbox.Options className="absolute w-full mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5">
+                      {durationOptions.map((option) => (
+                        <Listbox.Option
+                          key={option.id}
+                          className={({ active }) =>
+                            `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
+                          }
+                          value={option}
+                        >
+                          {({ selected, active }) => (
+                            <>
+                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                {option.name}
+                              </span>
+                            </>
+                          )}
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </Transition>
+                </Listbox>
               </div>
             </div>
+            {/* Duration information */}
 
           </div>
         )}
-
         {/* CMNTS: END The order form only for Trade mode */}
 
 
@@ -969,7 +1052,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
               </div>
             </div>
 
-            <div className="rounded-md border-2 border-temporal50 bg-teal-950/50 text-white p-2 mt-4 flex justify-between items-center">
+            <div className="rounded-md border-2 border-temporal50 bg-teal-950/50 text-white p-2 mt-10 flex justify-between items-center">
               <label className="p-1 mr-2">LP</label>
               <input
                 type="number"
@@ -1047,7 +1130,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         }}
         disabled={currentMode === "Earn"}
       >
-        {currentMode.toUpperCase()}
+        {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
       </button>
 
       {/* CMNTS: END The order form */}
