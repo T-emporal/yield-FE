@@ -477,7 +477,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
       </div>
 
-      <Xarrow
+      {/* <Xarrow
         start="mint-input-box"
         startAnchor={"bottom"}
         end="mint-duration-box"
@@ -486,26 +486,26 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         color={"#00A9A433"}
         strokeWidth={2}
         curveness={0.3}
-      />
+      /> */}
 
       {/* Duration information */}
       <div className="flex justify-center my-14">
-        <div id="mint-duration-box" className="flex items-center bg-neutral-950/50 rounded-full border-2 border-temporal50 text-gray-400">
+        <div id="mint-duration-box" className="flex items-center bg-neutral-950/50 py-2 rounded-full border-2 border-temporal50 text-gray-400">
           <div className="pl-3">
-            <ClockIcon className="h-5 w-5 mr-4 text-gray-400" aria-hidden="true" />
+            <ClockIcon className="h-8 w-8 mr-4 text-gray-400" aria-hidden="true" />
           </div>
           <input
             type="number"
             value={mintDuration}
             onChange={(e) => setMintDuration(e.target.value)}
-            className="py-2 px-6 w-28 border-0 text-gray-400 bg-transparent focus:outline-none outline-none"
+            className="focus:outline-none py-2 px-6 w-28 border-0 text-gray-400 bg-transparent"
             placeholder="Duration"
           />
-          <span className="px-4 py-2 text-gray-400">days</span>
+          <span className="px-4 py-2 text-gray-400">Days</span>
         </div>
       </div>
 
-      <Xarrow
+      {/* <Xarrow
         start="mint-duration-box"
         startAnchor={"bottom"}
         end="mint-output-box-1"
@@ -526,13 +526,13 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         path="straight"
         curveness={0}
         zIndex={-10}
-      />
+      /> */}
 
       {/* Outputs */}
-      <div className="flex justify-around items-center flex-wrap ">
+      <div className="flex justify-around items-center flex-wrap">
 
         {/* <div id="mint-output-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-900/40 mt-4 mr-2"> */}
-        <div id="mint-output-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mr-2">
+        <div id="mint-output-box-1" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-teal-950/30 border-r-2  rounded-r-none">
           <div className="w-full flex justify-center items-center py-4">
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
             <div className="text-gray-400 text-center ml-4">PT {selectedMintChain.name}</div>
@@ -545,7 +545,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
 
         {/* <div id="mint-output-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-900/40 mt-4 ml-2"> */}
-        <div id="mint-output-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 ml-2">
+        <div id="mint-output-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-teal-950/30 border-l-0  rounded-l-none">
           <div className="w-full flex justify-center items-center py-4">
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
             <div className="text-gray-400 text-center ml-4">YT {selectedMintChain.name}</div>
@@ -615,7 +615,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
 
         {/* YT Input Box */}
-        <div id="redeem-input-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4">
+        <div id="redeem-input-box-2" className="flex-1 min-w-[48%] flex flex-col items-center rounded-md border-2 border-temporal50 bg-teal-950/30 mt-4">
           <div className="w-full flex flex-1  justify-center  border-temporal50 items-center py-4">
             {/* <div className="w-full flex flex-1  justify-center border-r-2 border-temporal50 items-center py-4"> */}
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
@@ -627,7 +627,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </div>
       </div>
 
-      <Xarrow
+      {/* <Xarrow
         start="redeem-input-box-1"
         startAnchor={"bottom"}
         end="redeem-duration-box"
@@ -646,12 +646,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         color={"#00A9A433"}
         strokeWidth={2}
         curveness={0}
-      />
+      /> */}
 
       {/* Duration information */}
-      <div id="redeem-duration-box" className="flex justify-center my-12">
+      <div id="redeem-duration-box" className="flex justify-center mb-10 mt-14">
         <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
-          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-2 px-6 flex items-center relative">
+          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-3 px-6 flex items-center relative">
             <span className="block truncate">{selectedMintDuration.name}</span>
             <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
           </Listbox.Button>
@@ -687,7 +687,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         </Listbox>
       </div>
 
-      <Xarrow
+      {/* <Xarrow
         start="redeem-duration-box"
         startAnchor={"bottom"}
         end="redeem-output-box"
@@ -696,12 +696,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         strokeWidth={2}
         curveness={0.2}
         zIndex={-10}
-      />
+      /> */}
 
       {/* Output Section */}
       <div className="flex justify-around items-center flex-wrap">
 
-        <div id="redeem-output-box" className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-4 ">
+        <div id="redeem-output-box" className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-teal-950/30 mt-4 ">
           <div className="w-full flex flex-1  justify-center  border-temporal50 items-center py-4">
             {/* <div className="w-full flex flex-1  justify-center border-r-2 border-temporal50 items-center py-4"> */}
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
@@ -1000,7 +1000,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
                     leaveTo="opacity-0 scale-95"
                   >
                     {/* Removed style={{ width: 'auto' }} to allow Listbox.Options to expand to the full width of its parent */}
-                    <Listbox.Options className="absolute w-full mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5">
+                    <Listbox.Options className="absolute w-full mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-10">
                       {durationOptions.map((option) => (
                         <Listbox.Option
                           key={option.id}
@@ -1105,11 +1105,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
       </div>
       <button
         // className="w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal "
-        className={`w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" ? "cursor-not-allowed" : ""}`}
+        className={`button w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" ? "cursor-not-allowed" : ""}`}
 
-        style={{
-          backgroundImage: 'linear-gradient(to right, #004C4C80, #005B5B , #002C3C)'
-        }} onClick={() => {
+        onClick={() => {
           switch (currentMode) {
             case "Trade":
               console.log("YT Value: " + YTTradeValue + " PT Value: " + PTTradeValue)
@@ -1130,7 +1128,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
         }}
         disabled={currentMode === "Earn"}
       >
-        {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
+        <span className={`button-text ${currentMode === "Earn" ? "text-gray-500" : "text-gray-300"} z-10`}>
+          {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
+        </span>
       </button>
 
       {/* CMNTS: END The order form */}

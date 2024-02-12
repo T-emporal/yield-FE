@@ -19,6 +19,10 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+input:focus {
+  outline: none;
+}
+
 .orb {
   width: 1px; /* Adjust size as needed */
   height: 1px;
@@ -50,4 +54,59 @@ input[type=number] {
 
 .animate-rotation {
   animation: rotate-icon 0.5s ease-in-out;
+}
+
+.button {
+  position: relative;
+  width: 350px;
+  margin: auto;
+  margin-top: 20px;
+  padding: 10px 0;
+  background-color: tranparent;
+  border: 1px solid #00A9A488; 
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color 1s ease;
+  z-index: 0;
+}
+
+.button:before, .button:after {
+  content: '';
+  position: absolute;
+  background-color: #00A9A488; 
+  z-index: 1;
+  transition: width 0.4s ease-out;
+}
+
+.button:before {
+  top: 0;
+  left: 0;
+  bottom: 50%;
+  width: 0;
+}
+
+.button:after {
+  bottom: 0;
+  right: 0;
+  top: 50%;
+  width: 0;
+}
+
+.button:hover:before {
+  width: 100%;
+}
+
+.button:hover:after {
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #00A9A488;
+}
+
+.button-text {
+  position: relative;
+  z-index: 2;
+  transition: color 0.4s ease;
 }
