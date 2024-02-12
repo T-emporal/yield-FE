@@ -14,7 +14,7 @@ interface SingleTokenCardProps {
 const inter = Inter({ subsets: ["latin"] });
 const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCardProps) => {
   return (
-    <Link href={`/trade?tab=trade&token=${"st" + token}`} passHref>
+    <Link href={`/transact?tab=trade&token=${"st" + token}`} passHref>
       <div
         className="transform transition-transform duration-300 hover:scale-105 hover:shadow-lg rounded-xl border-[#ffffff] border-opacity-20 px-8 py-4 cursor-pointer"
         style={{
@@ -39,10 +39,10 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
           <div className="font-helvetica-neue text-4xl text-[#0ABAB5] flex items-end justify-between">
             <span>{tokenYield}</span>
             <div className="text-[#f2f2f2] text-sm flex items-end">
-              <Link href={`/trade?tab=trade&token=${"st" + token}`} passHref>
+              <Link href={`/transact?tab=trade&token=${"st" + token}`} passHref>
                 <span className="border-r border-temporal px-4 cursor-pointer" onClick={(e) => e.stopPropagation()}>Trade</span>
               </Link>
-              <Link href={`/trade?tab=mint&token=${"st" + token}`} passHref>
+              <Link href={`/transact?tab=mint&token=${"st" + token}`} passHref>
                 <span className="pl-4" onClick={(e) => e.stopPropagation()}>Mint</span>
               </Link>
             </div>

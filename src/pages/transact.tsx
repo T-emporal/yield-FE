@@ -4,7 +4,7 @@ import React from "react";
 
 function orders() {
   return (
-    <DashboardLayout activePage={"Trade"}>
+    <DashboardLayout activePage={"Transact"}>
       <TradeLayout />
     </DashboardLayout>
   );

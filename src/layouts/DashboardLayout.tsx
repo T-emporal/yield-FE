@@ -43,8 +43,8 @@ const navigation = [
     iconSelected: "/icon_markets_selected.svg",
   },
   {
-    name: "Trade",
-    href: "/trade",
+    name: "Transact",
+    href: "/transact",
     icon: "/icon_orders.svg",
     iconSelected: "/icon_orders_selected.svg",
   },
@@ -107,7 +107,7 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
           newPositionTopLeft = { top: '5vw', left: '5vh' };
           newPositionBottomRight = { bottom: '5vw', right: '5vw' };
           break;
-        case "/trade":
+        case "/transact":
           newPositionTopLeft = { top: '10vw', left: '20vh' };
           newPositionBottomRight = { bottom: '10vw', right: '20vw' };
           break;
