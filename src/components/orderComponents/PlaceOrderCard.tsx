@@ -114,10 +114,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
     if (tab === 'mint' && matchingChain) {
       setCurrentMode('Mint');
-      setSelectedMintChain(matchingChain); // Set the entire chain object
+      setSelectedMintChain(matchingChain);
     } else if (tab === 'trade' && matchingChain) {
       setCurrentMode('Trade');
-      setSelectedChain(matchingChain); // Set the entire chain object
+      setSelectedChain(matchingChain);
     }
   }, [router.query]);
 
@@ -649,9 +649,14 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
       /> */}
 
       {/* Duration information */}
-      <div id="redeem-duration-box" className="flex justify-center mb-10 mt-14">
-        <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
-          <Listbox.Button className="rounded-full bg-neutral-950/50 border-2 border-temporal50 text-gray-400 py-3 px-6 flex items-center relative">
+
+      <div className="flex justify-center my-14">
+        <div id="redeem-duration-box" className="flex items-center bg-neutral-950/50  rounded-full border-2 border-temporal50 text-gray-400">
+          <div className="pl-3">
+            <ClockIcon className="h-8 w-8 mr-4 text-gray-400" aria-hidden="true" />
+          </div>
+          <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
+          <Listbox.Button className=" text-gray-400 py-4 px-6 flex items-center relative">
             <span className="block truncate">{selectedMintDuration.name}</span>
             <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
           </Listbox.Button>
@@ -685,6 +690,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             </Listbox.Options>
           </Transition>
         </Listbox>
+        </div>
       </div>
 
       {/* <Xarrow
@@ -701,7 +707,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
       {/* Output Section */}
       <div className="flex justify-around items-center flex-wrap">
 
-        <div id="redeem-output-box" className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-teal-950/30 mt-4 ">
+        <div id="redeem-output-box" className="flex-1 min-w-[48%] flex  items-center rounded-md border-2 border-temporal50 bg-teal-950/30  ">
           <div className="w-full flex flex-1  justify-center  border-temporal50 items-center py-4">
             {/* <div className="w-full flex flex-1  justify-center border-r-2 border-temporal50 items-center py-4"> */}
             <Image src={selectedMintChain.icon} alt={selectedMintChain.name} width={25} height={25} />
