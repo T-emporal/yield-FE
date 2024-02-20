@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import Head from 'next/head'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default function App({ Component, pageProps }: any) {
   return (
@@ -10,6 +11,7 @@ export default function App({ Component, pageProps }: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Component {...pageProps} />
+      <GoogleAnalytics gaId="G-3D9QN4RQ7Q" />
     </>
   )
 }

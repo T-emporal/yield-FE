@@ -29,6 +29,9 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { json } from "stream/consumers";
 import Image from 'next/image';
 
+import Cookies from 'js-cookie';
+import Router from 'next/router';
+
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 declare global {
   interface Window extends KeplrWindow { }
@@ -88,11 +91,10 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
   const [txHash, setTxHash] = useState("");
   const router = useRouter();
 
-
   const [topLeftOrbPosition, setTopLeftOrbPosition] = useState<OrbPosition>({ top: '-5vh', left: '-10vw', bottom: '', right: '' });
   const [bottomRightOrbPosition, setBottomRightOrbPosition] = useState<OrbPosition>({ top: '', left: '', bottom: '-5vh', right: '-10vw' });
 
-  
+
 
   useEffect(() => {
     const currentPath = router.pathname;
@@ -101,7 +103,7 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
 
       let newPositionTopLeft = { ...topLeftOrbPosition };
       let newPositionBottomRight = { ...bottomRightOrbPosition };
-  
+
       switch (navName) {
         case "/":
           newPositionTopLeft = { top: '5vw', left: '5vh' };
@@ -116,7 +118,7 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
           newPositionBottomRight = { bottom: '15vw', right: '15vw' };
           break;
       }
-  
+
       setTopLeftOrbPosition(newPositionTopLeft);
       setBottomRightOrbPosition(newPositionBottomRight);
     };
@@ -318,9 +320,11 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
             src={"/TemporalLogoSmall.svg"}
             alt="Temporal Logo"
             className="ml-16"
-            width={100} 
+            width={100}
             height={100}
           />
+
+
           {navigation.map((singleNav) => (
             <Link
               key={singleNav.href}
@@ -345,31 +349,49 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
             </Link>
           ))}
         </div>
-        {publicAddress ? (
-          <>
-            <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10">
-              {publicAddress.slice(0, 5)}...
-              {publicAddress.slice(
-                publicAddress.length - 4,
-                publicAddress.length
-              )}
-            </button>
 
-            {/* <button
+        <div className="flex ">
+          <button
+            onClick={() => {
+              fetch('/api/logout')
+                .then(() => {
+                  Router.push('/login'); // Optionally reload or redirect after logging out
+                })
+                .catch((error) => console.error('Logout failed:', error));
+            }}
+            className="font-proxima-nova mr-4 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10"
+          >
+            Logout
+          </button>
+
+          {publicAddress ? (
+            <>
+              <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10">
+                {publicAddress.slice(0, 5)}...
+                {publicAddress.slice(
+                  publicAddress.length - 4,
+                  publicAddress.length
+                )}
+              </button>
+
+              {/* <button
               className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
               onClick={executeTransaction}
             >
               Transact
             </button> */}
-          </>
-        ) : (
-          <button
-            onClick={connectWallet}
-            className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
-          >
-            Connect Wallet
-          </button>
-        )}
+            </>
+          ) : (
+            <button
+              onClick={connectWallet}
+              className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
+            >
+              Connect Wallet
+            </button>
+          )}
+        </div>
+
+
       </header>
       <section className="max-w-[95vw] mx-auto">{children}</section>
       <footer></footer>
