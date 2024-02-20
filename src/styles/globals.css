@@ -64,7 +64,6 @@ input:focus {
   padding: 10px 0;
   background-color: tranparent;
   border: 1px solid #00A9A488; 
-  border-radius: 5px;
   overflow: hidden;
   cursor: pointer;
   transition: background-color 1s ease;
