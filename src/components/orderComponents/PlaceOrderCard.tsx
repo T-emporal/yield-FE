@@ -22,12 +22,24 @@ import {
   PrivateKey,
   getInjectiveAddress,
   InjectiveStargate,
+  ChainRestAuthApi,
+  TxRaw,
+  CosmosTxV1Beta1Tx,
+  BroadcastModeKeplr,
+  BaseAccount,
+  ChainRestTendermintApi,
+  createTransaction,
+  getTxRawFromTxRawOrDirectSignResponse,
+  TxRestClient,
+  getGasPriceBasedOnMessage,
+  MsgBroadcasterWithPk,
 } from "@injectivelabs/sdk-ts";
 import { INJ_DENOM } from "@injectivelabs/sdk-ui-ts";
 import { Network, getNetworkEndpoints } from '@injectivelabs/networks';
+// import { getNetworkEndpoints } from '@injectivelabs/networks';
 import { ChainId } from "@injectivelabs/ts-types";
 
-import { BigNumberInBase } from "@injectivelabs/utils";
+import { BigNumberInBase, DEFAULT_BLOCK_TIMEOUT_HEIGHT, getDefaultStdFee, getStdFee } from "@injectivelabs/utils";
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Xarrow from "react-xarrows";
@@ -37,12 +49,15 @@ import {
   Web3Exception,
   WalletException,
   UnspecifiedErrorCode,
-  ErrorType
+  ErrorType,
+  TransactionException
 } from '@injectivelabs/exceptions'
 
 import { PlaceOrderCardProps } from '@/types/Components';
 
-import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { ChainInfo, Window as KeplrWindow, SignDoc } from "@keplr-wallet/types";
+import { BroadcastMode } from '@keplr-wallet/types'
+
 declare global {
   interface Window extends KeplrWindow { }
 }
@@ -133,7 +148,85 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
 
     setTimeout(() => {
       setIsAnimating(false);
-    }, 500); // Assuming your animation takes 1 second
+    }, 500);
+  };
+
+  const getTestnetChainInfo = (): ChainInfo => ({
+    chainId: "injective-777",
+    chainName: "injective",
+    rpc: "http://100.109.95.94:26657",
+    rest: "http://100.109.95.94:10337",
+    bip44: {
+      coinType: 118,
+    },
+    bech32Config: {
+      bech32PrefixAccAddr: "inj",
+      bech32PrefixAccPub: "inj" + "pub",
+      bech32PrefixValAddr: "inj" + "valoper",
+      bech32PrefixValPub: "inj" + "valoperpub",
+      bech32PrefixConsAddr: "inj" + "valcons",
+      bech32PrefixConsPub: "inj" + "valconspub",
+    },
+    currencies: [
+      {
+        coinDenom: "inj",
+        coinMinimalDenom: "inj",
+        coinDecimals: 18,
+      },
+    ],
+    feeCurrencies: [
+      {
+        coinDenom: "inj",
+        coinMinimalDenom: "inj",
+        coinDecimals: 18,
+      },
+    ],
+    stakeCurrency: {
+      coinDenom: "inj",
+      coinMinimalDenom: "inj",
+      coinDecimals: 18,
+    },
+  })
+
+  const getKeplr = async (chainId: string) => {
+    if (!window.keplr) {
+      alert("Please install keplr extension");
+    } else {
+      await window.keplr.enable(chainId);
+
+      const offlineSigner = window.keplr.getOfflineSigner(chainId);
+      const accounts = await offlineSigner.getAccounts();
+
+      // console.log(accounts)
+      const key = await window.keplr.getKey(chainId);
+
+      return { offlineSigner, accounts, key };
+    }
+  };
+
+  const broadcastTx = async (chainId: string, txRaw: TxRaw) => {
+    // const keplr = await getKeplr(chainId);
+
+    if (!window.keplr) {
+      throw new Error("Keplr instance not found");
+    }
+
+    await window.keplr.enable(chainId);
+
+    const result = await window.keplr.sendTx(
+      chainId,
+      CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
+      BroadcastModeKeplr.Sync as unknown as BroadcastMode.Sync
+    );
+
+    if (!result || result.length === 0) {
+      throw new TransactionException(
+        new Error("Transaction failed to be broadcasted"),
+        { contextModule: "Keplr" }
+      );
+    }
+
+    return Buffer.from(result).toString("hex");
   };
 
   // console.log("params", );
@@ -171,30 +264,80 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
   //   console.log({ quantity, duration, chain, collateral });
   //   return { quantity, duration, chain, collateral };
   // }
+
+
+  // -------------------------TestnetCode---------------------------------------
+  // async function getBalance() {
+  //   if (!window.keplr) {
+  //     alert("POC Please install keplr extension");
+  //   } else {
+  //     await window.keplr.enable(ChainId.Testnet);
+  //     const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+  //     const [account] = await offlineSigner.getAccounts();
+
+  //     const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
+
+  //     try {
+  //       const client =
+  //         await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+  //           endpoints,
+  //           offlineSigner
+  //         );
+  //       const balances = await client.getAllBalances(account.address);
+  //       console.log("Balances", balances);
+  //       if (balances.length !== 0) {
+  //         return balances[3].amount;
+  //       }
+  //       else {
+  //         return 0;
+  //       }
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+
+  //   }
+  // }
+  // -------------------------TestnetCode---------------------------------------
+
   async function getBalance() {
     if (!window.keplr) {
       alert("POC Please install keplr extension");
     } else {
-      await window.keplr.enable(ChainId.Testnet);
-      const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+
+      try {
+        await window.keplr.experimentalSuggestChain(getTestnetChainInfo())
+      } catch (error) {
+        console.log(error)
+      }
+      await window.keplr.enable(ChainId.Devnet);
+
+      //----------------------------KEPLR NO SET FEE------------------------------------
+      window.keplr.defaultOptions = {
+        sign: {
+          preferNoSetFee: true,
+        }
+      }
+      const offlineSigner = window.keplr.getOfflineSigner!(ChainId.Devnet)
       const [account] = await offlineSigner.getAccounts();
 
-      const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
+      const endpoint = "http://100.109.95.94:26657/";
 
       try {
         const client =
           await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-            endpoints,
+            endpoint,
             offlineSigner
           );
         const balances = await client.getAllBalances(account.address);
+        console.log("Account: ", account);
         console.log("Balances", balances);
-        if (balances.length !== 0) {
-          return balances[3].amount;
-        }
-        else {
-          return 0;
-        }
+        // if (balances.length !== 0) {
+        //   return balances[3].amount;
+        // }
+        // else {
+        //   return 0;
+        // }
+        return balances
       } catch (error) {
         console.log(error)
       }
@@ -378,14 +521,367 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
     return { quantity, duration, chain };
   }
 
-  function placeMintOrder(
-    quantity: string,
-    duration: string,
-    chain: string,
+  // -----------------------WALLETSTRATEGY DEFAULT-----------------------------------------
+  // async function placeMintOrder(
+  //   mintAmount: string,
+  //   mintDuration: string,
+  //   selectedMintChain: string,
+  // ) {
+  //   console.log({ mintAmount, mintDuration, selectedMintChain });
+
+  //   const contractAddress = "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujaxlnz";
+
+  //   const NETWORK = Network.Mainnet
+
+  //   const walletStrategy = new WalletStrategy({
+  //     chainId: ChainId.Mainnet,
+  //   })
+
+  //   const getAddresses = async (): Promise<string[]> => {
+  //     const addresses = await walletStrategy.getAddresses();
+
+  //     if (addresses.length === 0) {
+  //       throw new Web3Exception(
+  //         new Error("There are no addresses linked in this wallet.")
+  //       );
+  //     }
+
+  //     return addresses;
+  //   };
+
+  //   const msgBroadcastClient = new MsgBroadcaster({
+  //     walletStrategy,
+  //     network: NETWORK,
+  //     networkEndpoints: {
+  //       indexer: "http://100.109.95.94:1317/indexer/",
+  //       grpc: "http://100.109.95.94:26657/",
+  //       rest: "http://100.109.95.94:10337/",
+  //       chronos: "http://100.109.95.94:1317/chronos/",
+  //       explorer: "http://100.109.95.94:1317/explorer/",
+  //     }
+  //   })
+
+  //   console.log(msgBroadcastClient)
+
+  //   const [address] = await getAddresses();
+  //   const injectiveAddress = address
+  //   console.log(injectiveAddress)
+
+  //   const msg = MsgExecuteContract.fromJSON({
+  //     contractAddress,
+  //     sender: injectiveAddress,
+  //     msg: {
+  //       lend_to_pool_v2: {
+  //         lender: injectiveAddress,
+  //         amount: new BigNumberInBase(mintAmount).toWei().toFixed(),
+  //         duration: parseInt(mintDuration)
+  //       },
+  //     },
+  //   });
+
+  //   try {
+  // const txHash = await msgBroadcastClient.broadcast({
+  //       msgs: msg,
+  //       injectiveAddress: injectiveAddress,
+  //     });
+
+  //     console.log(txHash);
+  //   } catch (error) {
+  //     console.error("An error occurred:", error);
+  //   }
+
+  //   return { mintAmount, mintDuration, selectedMintChain };
+  // }
+
+  // -----------------------WALLETSTRATEGY CHANGED-----------------------------------------
+
+  async function placeMintOrder(
+    mintAmount: string,
+    mintDuration: string,
+    selectedMintChain: string,
   ) {
-    console.log({ quantity, duration, chain });
-    return { quantity, duration, chain };
+    console.log({ mintAmount, mintDuration, selectedMintChain });
+
+    const contractAddress = "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujaxlnz";
+
+    const NETWORK = Network.Local;
+
+    const walletStrategy = new WalletStrategy({
+      chainId: ChainId.Devnet,
+      endpoints: {
+        rpc: "http://100.109.95.94:26657",
+        rest: "http://100.109.95.94:10337",
+      }
+    })
+
+    const pubKey = await walletStrategy.getPubKey();
+    console.log("pubkey: ", pubKey);
+
+    const getAddresses = async (): Promise<string[]> => {
+
+      const addresses = await walletStrategy.getAddresses();
+
+      if (addresses.length === 0) {
+        throw new Web3Exception(
+          new Error("There are no addresses linked in this wallet.")
+        );
+      }
+
+      return addresses;
+    };
+
+    // console.log(walletStrategy)
+
+    const msgBroadcastClient = new MsgBroadcaster({
+      walletStrategy,
+      network: NETWORK,
+      feePayerPubKey: pubKey,
+      networkEndpoints: {
+        indexer: "http://100.109.95.94:1317/indexer/",
+        grpc: "http://100.109.95.94:9091",
+        rest: "http://100.109.95.94:10337",
+        chronos: "http://100.109.95.94:1317/chronos/",
+        explorer: "http://100.109.95.94:1317/explorer/",
+      },
+    })
+
+    // console.log(msgBroadcastClient)
+
+    const [address] = await getAddresses();
+    const injectiveAddress = address
+    console.log("Sender: ", injectiveAddress)
+
+    const recipientAddress = "inj1qjayaq7fjlf2kma8t2ssx54lht7mmp00ahh7yp";
+    const msg = MsgExecuteContract.fromJSON({
+      contractAddress,
+      sender: injectiveAddress,
+      msg: {
+        mint_trade_tokens: {
+          recipient: injectiveAddress,
+          amount: new BigNumberInBase(mintAmount).toWei().toFixed(),
+        },
+      },
+    });
+
+
+
+    // -----------------------------TRANSFER-----------------------------------
+    // const recipientAddress = "inj1qjayaq7fjlf2kma8t2ssx54lht7mmp00ahh7yp";
+    // const msg = MsgExecuteContract.fromJSON({
+    //   contractAddress,
+    //   sender: injectiveAddress,
+    //   msg: {
+    //     transfer: {
+    //       recipient: recipientAddress,
+    //       amount: new BigNumberInBase(100000).toWei().toFixed(),
+    //     },
+    //   },
+    // });
+
+    // const msg = MsgExecuteContractCompat.fromJSON({
+    //   contractAddress,
+    //   sender: injectiveAddress,
+    //   exec: {
+    //     action: "transfer",
+    //     msg: [
+    //       {
+    //         recipient: injectiveAddress,
+    //         amount: new BigNumberInBase(1).toWei().toFixed(),
+
+    //       },
+    //     ],
+    //   },
+    // });
+
+
+    // -----------------------------QUERY-----------------------------------
+    // try {
+    //   const chainGrpcWasmApi = new ChainGrpcWasmApi("http://100.109.95.94:9091");
+
+    //   const queryObj = { token_info: {} };
+    //   const json = JSON.stringify(queryObj);
+    //   const b64Query = Buffer.from(json).toString('base64');
+
+    //   const contractInfo = await chainGrpcWasmApi.fetchContractInfo(contractAddress)
+    //   console.log("contractInfo", contractInfo);
+
+    //   const contractState = await chainGrpcWasmApi.fetchSmartContractState(contractAddress, b64Query);
+
+    //   console.log("contractState", contractState);
+
+
+    // } catch (error) {
+    //   console.error("An error occurred with query:", error);
+    // }
+
+    try {
+      const txHash = await msgBroadcastClient.broadcast({
+        msgs: msg,
+        injectiveAddress: injectiveAddress,
+      });
+
+      console.log(txHash);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+
+    return { mintAmount, mintDuration, selectedMintChain };
   }
+
+  // -----------------------BROADCASTER PK-----------------------------------------
+  // async function placeMintOrder(
+  //   mintAmount: string,
+  //   mintDuration: string,
+  //   selectedMintChain: string,
+  // ) {
+  //   console.log({ mintAmount, mintDuration, selectedMintChain });
+
+  //   const contractAddress = "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujaxlnz";
+  //   const privateKey = '3f62c9dbf5dafe3f3eea86863bc2ff3fb985c5e9be5f651da9ed2a6b4cb2c161'
+  //   const chainId = "injectivetemporal-1";
+
+  //   const keplerData = await getKeplr(chainId);
+
+  //   if (!keplerData) {
+  //     throw new Error("Key is undefined");
+  //   }
+
+  //   const injectiveAddress = keplerData.key.bech32Address;
+
+  //   console.log(injectiveAddress)
+
+  //   const msg = MsgExecuteContract.fromJSON({
+  //     contractAddress,
+  //     sender: injectiveAddress,
+  //     msg: {
+  //       lend_to_pool_v2: {
+  //         lender: injectiveAddress,
+  //         amount: new BigNumberInBase(mintAmount).toWei().toFixed(),
+  //         duration: parseInt(mintDuration)
+  //       },
+  //     },
+  //   });
+
+  //   try {
+  //     const txHash = await new MsgBroadcasterWithPk({
+  //       privateKey,
+  //       network: "injectivetemporal" as Network,
+  //       endpoints: {
+  //         indexer: "http://100.109.95.94:1317/indexer/",
+  //         grpc: "http://100.109.95.94:26657/",
+  //         rest: "http://100.109.95.94:10337/",
+  //       }
+  //     }).broadcast({
+  //       msgs: msg
+  //     })
+  //   } catch (error) {
+  //     console.error("An error occurred:", error);
+  //   }
+
+  //   return { mintAmount, mintDuration, selectedMintChain };
+  // }
+
+  // -----------------------NO WALLETSTRATEGY DEFAULT-----------------------------------------
+  // async function placeMintOrder(
+  //   mintAmount: string,
+  //   mintDuration: string,
+  //   selectedMintChain: string,
+  // ) {
+  //   console.log({ mintAmount, mintDuration, selectedMintChain });
+
+  //   const contractAddress = "inj14hj2tavq8fpesdwxxcu44rty3hh90vhujaxlnz";
+
+  //   // ----------------------------------------------------------------
+  //   // No WalletStrategy
+
+  //   const chainId = "injectivetemporal-1";
+  //   const keplerData = await getKeplr(chainId);
+
+  //   if (!keplerData) {
+  //     throw new Error("Key is undefined");
+  //   }
+
+  //   const pubKey = Buffer.from(keplerData.key.pubKey).toString("base64");
+
+  //   const [account] = await keplerData.offlineSigner.getAccounts();
+
+  //   const injectiveAddress = keplerData.key.bech32Address;
+
+  //   const rpcEndpoint = "http://100.109.95.94:26657";
+  //   const restEndpoint = "http://100.109.95.94:10337";
+
+  //   /** Account Details **/
+  //   const chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
+  //   const accountDetailsResponse = await chainRestAuthApi.fetchAccount(
+  //     injectiveAddress
+  //   );
+  //   const baseAccount = BaseAccount.fromRestApi(accountDetailsResponse);
+
+  //   console.log("Base Account", baseAccount);
+
+  //   /** Block Details */
+  //   const chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
+  //   const latestBlock = await chainRestTendermintApi.fetchLatestBlock();
+  //   const latestHeight = latestBlock.header.height;
+  //   const timeoutHeight = new BigNumberInBase(latestHeight).plus(
+  //     DEFAULT_BLOCK_TIMEOUT_HEIGHT
+  //   );
+
+  //   const msg = MsgExecuteContract.fromJSON({
+  //     contractAddress,
+  //     sender: injectiveAddress,
+  //     msg: {
+  //       TokenInfo : {},
+  //     },
+  //   });
+
+  //   // const msg = MsgExecuteContract.fromJSON({
+  //   //   contractAddress,
+  //   //   sender: injectiveAddress,
+  //   //   msg: {
+  //   //     MintTradeTokens: {
+  //   //       recipient : injectiveAddress,
+  //   //       amount: new BigNumberInBase(mintAmount).toWei().toFixed(),
+  //   //     },
+  //   //   },
+  //   // });
+
+  //   const fee = getDefaultStdFee()
+  //   console.log("Fee", fee)
+
+  //   const { signDoc } = createTransaction({
+  //     pubKey,
+  //     chainId,
+  //     fee: fee,
+  //     message: msg,
+  //     sequence: baseAccount.sequence,
+  //     timeoutHeight: timeoutHeight.toNumber(),
+  //     accountNumber: baseAccount.accountNumber,
+  //   });
+
+  //   console.log(signDoc)
+
+  //   const directSignResponse = await keplerData.offlineSigner.signDirect(
+  //     injectiveAddress,
+  //     signDoc as unknown as SignDoc
+  //   );
+
+  //   try {
+
+  //     const txRaw = getTxRawFromTxRawOrDirectSignResponse(directSignResponse);
+  //     const txHash = await broadcastTx(chainId, txRaw);
+  //     const response = await new TxRestClient(restEndpoint).fetchTxPoll(txHash);
+
+  //     console.log('Transaction successfully broadcasted and confirmed:', response);
+  //   } catch (error) {
+  //     console.error('Error executing transaction:', error);
+  //     // throw error;
+  //   }
+  //   // ----------------------------------------------------------------
+
+  //   return { mintAmount, mintDuration, selectedMintChain };
+  // }
+
   useEffect(() => {
     async function x() {
       let price = await getOraclePrice(selectedChain.name);
@@ -393,10 +889,12 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
     }
     x();
   }, [quantity, selectedChain]);
+
   useEffect(() => {
     setQuantity("10");
     setCurrentPrice(0);
   }, [currentMode]);
+
   useEffect(() => {
     async function y() {
       let balance = await getBalance();
@@ -498,7 +996,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             type="number"
             value={mintDuration}
             onChange={(e) => setMintDuration(e.target.value)}
-            className="focus:outline-none py-2 w-24 border-0 text-gray-400 bg-transparent"
+            className="focus:outline-none py-2 w-24 border-0 text-gray-400 bg-transparent text-center"
             placeholder="Duration"
           />
           <span className="px-3 py-2 text-gray-400">Days</span>
@@ -659,40 +1157,40 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             <ClockIcon className="h-8 w-8 ml-2 mr-4 text-gray-400" aria-hidden="true" />
           </div>
           <Listbox value={selectedMintDuration} onChange={setselectedMintDuration}>
-          <Listbox.Button className=" text-gray-400 py-4 px-6 flex items-center relative">
-            <span className="block truncate">{selectedMintDuration.name}</span>
-            <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            enter="transition transform origin-top duration-200 ease-out"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="transition transform origin-top duration-200 ease-in"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <Listbox.Options className="absolute mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5" style={{ width: 'auto' }}>
-              {durationOptions.map((option) => (
-                <Listbox.Option
-                  key={option.id}
-                  className={({ active }) =>
-                    `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
-                  }
-                  value={option}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                        {option.name}
-                      </span>
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </Listbox>
+            <Listbox.Button className=" text-gray-400 py-4 px-6 flex items-center relative">
+              <span className="block truncate">{selectedMintDuration.name}</span>
+              <ChevronDownIcon className="ml-4 h-5 w-5" aria-hidden="true" />
+            </Listbox.Button>
+            <Transition
+              as={Fragment}
+              enter="transition transform origin-top duration-200 ease-out"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="transition transform origin-top duration-200 ease-in"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Listbox.Options className="absolute mt-1 bg-[#15191D] rounded-md shadow-lg max-h-60 py-1 z-5" style={{ width: 'auto' }}>
+                {durationOptions.map((option) => (
+                  <Listbox.Option
+                    key={option.id}
+                    className={({ active }) =>
+                      `${active ? 'bg-gray-700 text-[#f2f2f2]' : 'text-[#f2f2f2]'} cursor-pointer select-none relative py-2 pl-10 pr-4`
+                    }
+                    value={option}
+                  >
+                    {({ selected, active }) => (
+                      <>
+                        <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                          {option.name}
+                        </span>
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </Listbox>
         </div>
       </div>
 
@@ -1130,7 +1628,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor }: PlaceOrde
             case "Earn":
               return placeEarnOrder(quantity, duration, selectedChain.name);
             case "Mint":
-              return placeMintOrder(quantity, selectedMintDuration.name, selectedChain.name);
+              return placeMintOrder(mintAmount, mintDuration, selectedMintChain.name);
             default:
               break;
           }

@@ -32,7 +32,7 @@ import Image from 'next/image';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
 
-import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { ChainInfo, Window as KeplrWindow } from "@keplr-wallet/types";
 declare global {
   interface Window extends KeplrWindow { }
 }
@@ -94,7 +94,42 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
   const [topLeftOrbPosition, setTopLeftOrbPosition] = useState<OrbPosition>({ top: '-5vh', left: '-10vw', bottom: '', right: '' });
   const [bottomRightOrbPosition, setBottomRightOrbPosition] = useState<OrbPosition>({ top: '', left: '', bottom: '-5vh', right: '-10vw' });
 
-
+  const getTestnetChainInfo = (): ChainInfo => ({
+    chainId: "injective-777",
+    chainName: "injective",
+    rpc: "http://100.109.95.94:26657",
+    rest: "http://100.109.95.94:10337",
+    bip44: {
+      coinType: 118,
+    },
+    bech32Config: {
+      bech32PrefixAccAddr: "inj",
+      bech32PrefixAccPub: "inj" + "pub",
+      bech32PrefixValAddr: "inj" + "valoper",
+      bech32PrefixValPub: "inj" + "valoperpub",
+      bech32PrefixConsAddr: "inj" + "valcons",
+      bech32PrefixConsPub: "inj" + "valconspub",
+    },
+    currencies: [
+      {
+        coinDenom: "inj",
+        coinMinimalDenom: "inj",
+        coinDecimals: 18,
+      },
+    ],
+    feeCurrencies: [
+      {
+        coinDenom: "inj",
+        coinMinimalDenom: "inj",
+        coinDecimals: 18,
+      },
+    ],
+    stakeCurrency: {
+      coinDenom: "inj",
+      coinMinimalDenom: "inj",
+      coinDecimals: 18,
+    },
+  })
 
   useEffect(() => {
     const currentPath = router.pathname;
@@ -126,10 +161,13 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
     updateOrbPositionsBasedOnPath(currentPath);
   }, [router.pathname]);
 
+
+
   useEffect(() => {
     let wallet_address = window.localStorage.getItem("wallet_address");
     if (wallet_address) setPublicAddress(wallet_address);
   }, []);
+
   useEffect(() => {
     if (publicAddress) {
       const x = async () => {
@@ -151,22 +189,42 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
         if (!window.keplr) {
           alert("Please install keplr extension");
         } else {
-          await window.keplr.enable(ChainId.Testnet);
-          const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+          // -------------------------TestnetCode---------------------------------------
+          // await window.keplr.enable(ChainId.Testnet);
+          // const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+          // const [account] = await offlineSigner.getAccounts();
+
+          // const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
+
+          // const client =
+          //   await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+          //     endpoints,
+          //     offlineSigner
+          //   );
+
+          // // console.log(client)
+          // // const balances = await client.getAllBalances(account.address);
+          // // console.log("Balances", balances);
+          // -------------------------TestnetCode---------------------------------------
+
+          console.log("keplr extension is installed");
+
+          await window.keplr.experimentalSuggestChain(getTestnetChainInfo())
+          const offlineSigner = window.keplr.getOfflineSigner!("injective-1")
           const [account] = await offlineSigner.getAccounts();
 
-          // Initialize the stargate client
-          const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
+          // console.log("offlineSigner", offlineSigner);
 
           const client =
             await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-              endpoints,
+              "http://100.109.95.94:26657/",
               offlineSigner
             );
 
           // console.log(client)
-          // const balances = await client.getAllBalances(account.address);
+          const balances = await client.getAllBalances(account.address);
           // console.log("Balances", balances);
+          window.localStorage.setItem("wallet_address", account.address);
         }
       }
       x();
@@ -179,10 +237,24 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
     if (!window.keplr) {
       alert("Please install keplr extension");
     } else {
-      await window.keplr.enable(ChainId.Testnet);
-      const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+      // -------------------------TestnetCode---------------------------------------
+      // await window.keplr.enable(ChainId.Testnet);
+      // const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+      // const [account] = await offlineSigner.getAccounts();
+      // -------------------------TestnetCode---------------------------------------
+      // await window.keplr.experimentalSuggestChain(getTestnetChainInfo())
+
+      try {
+        await window.keplr.experimentalSuggestChain(getTestnetChainInfo())
+      } catch (error) {
+        console.log(error)
+      }
+      const offlineSigner = window.keplr.getOfflineSigner!("injective-1")
       const [account] = await offlineSigner.getAccounts();
+
       setPublicAddress(account.address);
+      window.localStorage.setItem("wallet_address", account.address);
+
     }
 
     return;
@@ -194,11 +266,19 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
       alert("Please install keplr extension");
 
     } else {
-      await window.keplr.enable(chainId)
+      // -------------------------TestnetCode---------------------------------------
 
-      const offlineSigner = window.keplr.getOfflineSigner(chainId)
+      // await window.keplr.enable(chainId)
+
+      // const offlineSigner = window.keplr.getOfflineSigner(chainId)
+      // const accounts = await offlineSigner.getAccounts()
+      // const key = await window.keplr.getKey(chainId)
+      // -------------------------TestnetCode---------------------------------------
+      await window.keplr.experimentalSuggestChain(getTestnetChainInfo())
+      const offlineSigner = window.keplr.getOfflineSigner!("injective-1")
+
       const accounts = await offlineSigner.getAccounts()
-      const key = await window.keplr.getKey(chainId)
+      const key = await window.keplr.getKey("injective-1")
 
       return { offlineSigner, accounts, key }
     }
