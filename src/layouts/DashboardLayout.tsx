@@ -130,175 +130,178 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
     let wallet_address = window.localStorage.getItem("wallet_address");
     if (wallet_address) setPublicAddress(wallet_address);
   }, []);
-  useEffect(() => {
-    if (publicAddress) {
-      const x = async () => {
-        // console.log("Network Endpoint: "+getNetworkEndpoints(Network.Testnet).rest)
-        // console.log("Network Endpoint: "+JSON.stringify(getNetworkEndpoints(Network.TestnetSentry).rpc))
-        // console.log("Offline signer: "+JSON.stringify(window.keplr.getOfflineSigner(ChainId.TestnetSentry)))
-        // console.log("Offline signer: "+JSON.stringify(ChainId))
-        // const client = await SigningStargateClient.connectWithSigner(
-        //   getNetworkEndpoints(Network.TestnetSentry).rest,
-        //   window.keplr.getOfflineSigner(ChainId.Testnet)
-        // );
 
-        // const client =
-        // await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-        //   getNetworkEndpoints(Network.TestnetSentry).rest,
-        //   window.keplr.getOfflineSigner(ChainId.Testnet),
-        // );
+  // ---------------------------CONTRACT_CONNECT-------------------------------------
+  // useEffect(() => {
+  //   if (publicAddress) {
+  //     const x = async () => {
+  //       // console.log("Network Endpoint: "+getNetworkEndpoints(Network.Testnet).rest)
+  //       // console.log("Network Endpoint: "+JSON.stringify(getNetworkEndpoints(Network.TestnetSentry).rpc))
+  //       // console.log("Offline signer: "+JSON.stringify(window.keplr.getOfflineSigner(ChainId.TestnetSentry)))
+  //       // console.log("Offline signer: "+JSON.stringify(ChainId))
+  //       // const client = await SigningStargateClient.connectWithSigner(
+  //       //   getNetworkEndpoints(Network.TestnetSentry).rest,
+  //       //   window.keplr.getOfflineSigner(ChainId.Testnet)
+  //       // );
 
-        if (!window.keplr) {
-          alert("Please install keplr extension");
-        } else {
-          await window.keplr.enable(ChainId.Testnet);
-          const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
-          const [account] = await offlineSigner.getAccounts();
+  //       // const client =
+  //       // await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+  //       //   getNetworkEndpoints(Network.TestnetSentry).rest,
+  //       //   window.keplr.getOfflineSigner(ChainId.Testnet),
+  //       // );
 
-          // Initialize the stargate client
-          const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
+  //       if (!window.keplr) {
+  //         alert("Please install keplr extension");
+  //       } else {
+  //         await window.keplr.enable(ChainId.Testnet);
+  //         const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+  //         const [account] = await offlineSigner.getAccounts();
 
-          const client =
-            await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
-              endpoints,
-              offlineSigner
-            );
+  //         // Initialize the stargate client
+  //         const endpoints = getNetworkEndpoints(Network.TestnetSentry).rpc ?? "https://testnet.sentry.tm.injective.network:443";
 
-          // console.log(client)
-          // const balances = await client.getAllBalances(account.address);
-          // console.log("Balances", balances);
-        }
-      }
-      x();
-    }
-  }, [publicAddress]);
+  //         const client =
+  //           await InjectiveStargate.InjectiveSigningStargateClient.connectWithSigner(
+  //             endpoints,
+  //             offlineSigner
+  //           );
+
+  //         // console.log(client)
+  //         // const balances = await client.getAllBalances(account.address);
+  //         // console.log("Balances", balances);
+  //       }
+  //     }
+  //     x();
+  //   }
+  // }, [publicAddress]);
+
+  // async function connectWallet() {
+
+  //   if (!window.keplr) {
+  //     alert("Please install keplr extension");
+  //   } else {
+  //     await window.keplr.enable(ChainId.Testnet);
+  //     const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
+  //     const [account] = await offlineSigner.getAccounts();
+  //     setPublicAddress(account.address);
+  //   }
+
+  //   return;
+  // }
+
+  // const getKeplr = async (chainId: string) => {
+
+  //   if (!window.keplr) {
+  //     alert("Please install keplr extension");
+
+  //   } else {
+  //     await window.keplr.enable(chainId)
+
+  //     const offlineSigner = window.keplr.getOfflineSigner(chainId)
+  //     const accounts = await offlineSigner.getAccounts()
+  //     const key = await window.keplr.getKey(chainId)
+
+  //     return { offlineSigner, accounts, key }
+  //   }
+
+  // }
+
+  // const executeTransaction = async () => {
+  //   // Define your functions and variables here
+
+  //   const broadcastTx = async (chainId: string, txRaw: CosmosTxV1Beta1Tx.TxRaw) => {
+
+  //     if (!window.keplr) {
+  //       alert("Please install keplr extension");
+  //     } else {
+  //       const result = await window.keplr.sendTx(
+  //         chainId,
+  //         CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
+  //         BroadcastMode.Sync
+  //       );
+
+  //       if (!result || result.length === 0) {
+  //         throw new TransactionException(
+  //           new Error("Transaction failed to be broadcasted"),
+  //           { contextModule: "Keplr" }
+  //         );
+  //       }
+
+  //       return Buffer.from(result).toString("hex");
+  //     }
 
 
-  async function connectWallet() {
+  //   };
+  //   const chainId = ChainId.Testnet;
 
-    if (!window.keplr) {
-      alert("Please install keplr extension");
-    } else {
-      await window.keplr.enable(ChainId.Testnet);
-      const offlineSigner = window.keplr.getOfflineSigner(ChainId.Testnet);
-      const [account] = await offlineSigner.getAccounts();
-      setPublicAddress(account.address);
-    }
+  //   const keplrResult = await getKeplr(chainId);
+  //   if (keplrResult) {
+  //     const { offlineSigner, accounts, key } = keplrResult;
+  //     const pubKey = Buffer.from(key.pubKey).toString("base64");
+  //     const injectiveAddress = key.bech32Address;
+  //     const restEndpoint = getNetworkEndpoints(
+  //       Network.Testnet
+  //     ).rest; /* getNetworkEndpoints(Network.Mainnet).rest */
+  //     const amount = {
+  //       amount: new BigNumberInBase(0.01).toWei().toFixed(),
+  //       denom: "inj",
+  //     };
 
-    return;
-  }
+  //     /** Account Details **/
+  //     const chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
+  //     const accountDetailsResponse = await chainRestAuthApi.fetchAccount(
+  //       injectiveAddress
+  //     );
+  //     const baseAccount = BaseAccount.fromRestApi(accountDetailsResponse);
+  //     const accountDetails = baseAccount.toAccountDetails();
 
-  const getKeplr = async (chainId: string) => {
+  //     /** Block Details */
+  //     const chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
+  //     const latestBlock = await chainRestTendermintApi.fetchLatestBlock();
+  //     const latestHeight = latestBlock.header.height;
+  //     const timeoutHeight = new BigNumberInBase(latestHeight).plus(
+  //       DEFAULT_BLOCK_TIMEOUT_HEIGHT
+  //     );
 
-    if (!window.keplr) {
-      alert("Please install keplr extension");
+  //     /** Preparing the transaction */
+  //     const msg = MsgSend.fromJSON({
+  //       amount,
+  //       srcInjectiveAddress: injectiveAddress,
+  //       dstInjectiveAddress: "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e",
+  //     });
 
-    } else {
-      await window.keplr.enable(chainId)
+  //     try {
+  //       const { signDoc } = createTransaction({
+  //         pubKey,
+  //         chainId,
+  //         fee: DEFAULT_STD_FEE,
+  //         signMode: SIGN_DIRECT,
+  //         message: [msg],
+  //         sequence: baseAccount.sequence,
+  //         timeoutHeight: timeoutHeight.toNumber(),
+  //         accountNumber: baseAccount.accountNumber,
+  //       });
 
-      const offlineSigner = window.keplr.getOfflineSigner(chainId)
-      const accounts = await offlineSigner.getAccounts()
-      const key = await window.keplr.getKey(chainId)
+  //       const directSignResponse = await offlineSigner.signDirect(
+  //         injectiveAddress,
+  //         createCosmosSignDocFromSignDoc(signDoc)
+  //       );
+  //       const txRaw = getTxRawFromTxRawOrDirectSignResponse(directSignResponse);
+  //       const txHash = await broadcastTx(ChainId.Testnet, txRaw) ?? "";
+  //       console.log({ txHash });
+  //       const response = await new TxRestClient(restEndpoint).fetchTxPoll(txHash);
+  //       console.log({ response });
+  //       setTxHash(txHash);
+  //     } catch (error) {
+  //       console.error("Error executing transaction:", error);
+  //     }
+  //   } else {
+  //     console.error("Keplr didn't return any results");
+  //   }
 
-      return { offlineSigner, accounts, key }
-    }
+  // };
+  // ---------------------------CONTRACT_CONNECT-------------------------------------
 
-  }
-
-  const executeTransaction = async () => {
-    // Define your functions and variables here
-
-    const broadcastTx = async (chainId: string, txRaw: CosmosTxV1Beta1Tx.TxRaw) => {
-
-      if (!window.keplr) {
-        alert("Please install keplr extension");
-      } else {
-        const result = await window.keplr.sendTx(
-          chainId,
-          CosmosTxV1Beta1Tx.TxRaw.encode(txRaw).finish(),
-          BroadcastMode.Sync
-        );
-
-        if (!result || result.length === 0) {
-          throw new TransactionException(
-            new Error("Transaction failed to be broadcasted"),
-            { contextModule: "Keplr" }
-          );
-        }
-
-        return Buffer.from(result).toString("hex");
-      }
-
-
-    };
-    const chainId = ChainId.Testnet;
-
-    const keplrResult = await getKeplr(chainId);
-    if (keplrResult) {
-      const { offlineSigner, accounts, key } = keplrResult;
-      const pubKey = Buffer.from(key.pubKey).toString("base64");
-      const injectiveAddress = key.bech32Address;
-      const restEndpoint = getNetworkEndpoints(
-        Network.Testnet
-      ).rest; /* getNetworkEndpoints(Network.Mainnet).rest */
-      const amount = {
-        amount: new BigNumberInBase(0.01).toWei().toFixed(),
-        denom: "inj",
-      };
-
-      /** Account Details **/
-      const chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
-      const accountDetailsResponse = await chainRestAuthApi.fetchAccount(
-        injectiveAddress
-      );
-      const baseAccount = BaseAccount.fromRestApi(accountDetailsResponse);
-      const accountDetails = baseAccount.toAccountDetails();
-
-      /** Block Details */
-      const chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
-      const latestBlock = await chainRestTendermintApi.fetchLatestBlock();
-      const latestHeight = latestBlock.header.height;
-      const timeoutHeight = new BigNumberInBase(latestHeight).plus(
-        DEFAULT_BLOCK_TIMEOUT_HEIGHT
-      );
-
-      /** Preparing the transaction */
-      const msg = MsgSend.fromJSON({
-        amount,
-        srcInjectiveAddress: injectiveAddress,
-        dstInjectiveAddress: "inj17xxadj7e9ermxnq7jl5t2zxu5pknhahac8ma8e",
-      });
-
-      try {
-        const { signDoc } = createTransaction({
-          pubKey,
-          chainId,
-          fee: DEFAULT_STD_FEE,
-          signMode: SIGN_DIRECT,
-          message: [msg],
-          sequence: baseAccount.sequence,
-          timeoutHeight: timeoutHeight.toNumber(),
-          accountNumber: baseAccount.accountNumber,
-        });
-
-        const directSignResponse = await offlineSigner.signDirect(
-          injectiveAddress,
-          createCosmosSignDocFromSignDoc(signDoc)
-        );
-        const txRaw = getTxRawFromTxRawOrDirectSignResponse(directSignResponse);
-        const txHash = await broadcastTx(ChainId.Testnet, txRaw) ?? "";
-        console.log({ txHash });
-        const response = await new TxRestClient(restEndpoint).fetchTxPoll(txHash);
-        console.log({ response });
-        setTxHash(txHash);
-      } catch (error) {
-        console.error("Error executing transaction:", error);
-      }
-    } else {
-      console.error("Keplr didn't return any results");
-    }
-
-  };
 
   return (
     <main
@@ -383,7 +386,7 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
             </>
           ) : (
             <button
-              onClick={connectWallet}
+              // onClick={connectWallet}
               className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884]"
             >
               Connect Wallet

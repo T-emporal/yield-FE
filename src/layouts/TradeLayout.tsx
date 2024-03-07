@@ -7,6 +7,7 @@ function TradeLayout() {
   const [fadeIn, setFadeIn] = useState(false);
   const [yieldGraphOpen, setYieldGraphOpen] = useState(false);
   const [lineColor, setLineColor] = useState("#BF71DF");
+  const [graphData, setGraphData] = useState({});
   const handleClick = () => {
     setMove(!move);
     setFadeIn(!fadeIn);
@@ -52,6 +53,7 @@ function TradeLayout() {
             handleClick={handleClick}
             yieldGraphOpen={yieldGraphOpen}
             setLineColor={setLineColor}
+            setGraphData={setGraphData}
           />
         </div>
         <div
@@ -59,7 +61,7 @@ function TradeLayout() {
             fadeIn ? "opacity-100" : ""
           } transition-opacity duration-[700ms] ease-in-out z-10 rounded-xl`}
         >
-          <YieldCurveCard lineColor={lineColor} />
+          <YieldCurveCard lineColor={lineColor} data={graphData}/>
         </div>
       </div>
     </div>

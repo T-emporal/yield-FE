@@ -4,10 +4,17 @@ export interface LineChartProps {
     lineColor: LineColor;
 }
 
+export interface GraphData {
+    yieldData: number[];
+    principalData: number[];
+    labels: number[];
+}
+
 export interface PlaceOrderCardProps {
     handleClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
     yieldGraphOpen: boolean;
     setLineColor: (color: string) => void;
+    setGraphData: (graphData: GraphData) => void;
 }
 
 export interface TableDataItem {

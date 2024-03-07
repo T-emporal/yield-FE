@@ -30,6 +30,12 @@ const baseOptions = {
       position: 'top' as const,
       display: false,
     },
+    tooltip:{
+      enabled: true,
+      mode: 'index',
+      intersect: false,
+      position: 'nearest',
+    },
     title: {
       display: true,
     },
@@ -41,6 +47,7 @@ interface YieldCurveCardProps {
   data?: {
     yieldData?: Array<number>;
     principalData?: Array<number>;
+    labels?: Array<number>;
   };
 }
 
@@ -54,10 +61,11 @@ const createDataset = (label: string, data: Array<number>, lineColor: string) =>
 const YieldCurveCard: React.FC<YieldCurveCardProps> = ({ lineColor, data }) => {
   const [activeDataset, setActiveDataset] = useState<'yield' | 'principal'>('yield');
 
-  const labels = [0, 2, 4, 6, 8, 10, 12];
+  const defaultLabels = [0, 2, 4, 6, 8, 10, 12];
   const defaultYieldData = [20, 50, 90, 20, 40, 23, 44];
   const defaultPrincipalData = [40, 10, 50, 70, 35, 25, 40];
 
+  const labelsToUse = data?.labels || defaultLabels;
   const yieldData = data?.yieldData ? createDataset("Yield Dataset", data.yieldData, lineColor) : createDataset("Default Yield Dataset", defaultYieldData, lineColor);
   const principalData = data?.principalData ? createDataset("Principal Dataset", data.principalData, lineColor) : createDataset("Default Principal Dataset", defaultPrincipalData, lineColor);
 
@@ -66,7 +74,7 @@ const YieldCurveCard: React.FC<YieldCurveCardProps> = ({ lineColor, data }) => {
   };
 
   const chartData = {
-    labels,
+    labels: labelsToUse,
     datasets: [activeDataset === 'yield' ? yieldData : principalData],
   };
 
