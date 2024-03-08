@@ -132,7 +132,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   const [PTTradeValue, setPTTradeValue] = useState('1');
   const [PTTradeValueFinal, setPTTradeValueFinal] = useState('');
   const [PTData, setPTData] = useState({ PTpx: 0.0001, PTapy: 12.08 });
-  const [YTTradeValue, setYTTradeValue] = useState('');
+  const [YTTradeValue, setYTTradeValue] = useState('1');
   const [YTTradeValueFinal, setYTTradeValueFinal] = useState('');
   const [YTData, setYTData] = useState({ YTpx: 0.999, YTapy: 4.03 });
 
@@ -189,7 +189,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
   const fetchGraphData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/graph');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/graph`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -231,7 +231,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       setIsPTandYTDataLoading(true)
       const durationNumber = selectedTradeDuration.name.split(' ')[0];
 
-      const response = await fetch(`http://localhost:8080/node/PTandYTByDuration/${durationNumber}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/node/PTandYTByDuration/${durationNumber}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -283,7 +283,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
         try {
           const durationNumber = selectedTradeDuration.name.split(' ')[0];
 
-          const response = await fetch(`http://localhost:8080/node/YTForPTByDuration/${durationNumber}/${PTTradeValueFinal}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/node/YTForPTByDuration/${durationNumber}/${PTTradeValueFinal}`);
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setYTTradeValue(data.YT);
@@ -296,7 +296,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
         try {
           const durationNumber = selectedTradeDuration.name.split(' ')[0];
 
-          const response = await fetch(`http://localhost:8080/node/PTForYTByDuration/${durationNumber}/${YTTradeValueFinal}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/node/YTForPTByDuration/${durationNumber}/${YTTradeValueFinal}`);
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setPTTradeValue(data.PT);
@@ -444,7 +444,9 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     console.log(Order);
     try {
       setIsTransactionLoading(true);
-      const response = await fetch('http://localhost:8080/transaction', {
+      
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
