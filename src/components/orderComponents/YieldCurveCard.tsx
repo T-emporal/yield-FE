@@ -32,9 +32,7 @@ const baseOptions = {
     },
     tooltip:{
       enabled: true,
-      mode: 'index',
       intersect: false,
-      position: 'nearest',
     },
     title: {
       display: true,

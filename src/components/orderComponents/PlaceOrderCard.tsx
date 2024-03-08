@@ -31,6 +31,7 @@ import { BigNumberInBase } from "@injectivelabs/utils";
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Xarrow from "react-xarrows";
+import SuccessPopup from "../basicComponents/SuccessPopup";
 
 import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
 import {
@@ -60,12 +61,12 @@ const tabs = [
 //   { name: "stMATIC", icon: "./logo_matic.svg", apy: "4.05%" },
 // ];
 const chains = [
-  { name: "stINJ", icon: "./logo_injective.svg"},
-  { name: "stATOM", icon: "./logo_atom.svg"},
-  { name: "stOSMO", icon: "./logo_osmo.svg"},
-  { name: "stETH", icon: "./logo_stEth.svg"},
-  { name: "stUSDT", icon: "./logo_usdt.svg"},
-  { name: "stMATIC", icon: "./logo_matic.svg"},
+  { name: "stINJ", icon: "./logo_injective.svg" },
+  { name: "stATOM", icon: "./logo_atom.svg" },
+  { name: "stOSMO", icon: "./logo_osmo.svg" },
+  { name: "stETH", icon: "./logo_stEth.svg" },
+  { name: "stUSDT", icon: "./logo_usdt.svg" },
+  { name: "stMATIC", icon: "./logo_matic.svg" },
 ];
 const units = ['PT', 'YT', 'RT'];
 const poolSummaryData = [
@@ -128,7 +129,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
   const [RedeemAmount, setRedeemAmount] = useState('');
 
-  const [PTTradeValue, setPTTradeValue] = useState('');
+  const [PTTradeValue, setPTTradeValue] = useState('1');
   const [PTTradeValueFinal, setPTTradeValueFinal] = useState('');
   const [PTData, setPTData] = useState({ PTpx: 0.0001, PTapy: 12.08 });
   const [YTTradeValue, setYTTradeValue] = useState('');
@@ -139,6 +140,13 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   const [isAnimating, setIsAnimating] = useState(false);
 
   const [tradeApy, setTradeApy] = useState(4.15);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  const [isGraphLoading, setIsGraphLoading] = useState(false);
+  const [isPTandYTDataLoading, setIsPTandYTDataLoading] = useState(false);
+  const [isDerivedValueLoading, setIsDerivedValueLoading] = useState(false);
+  const [isTransactionLoading, setIsTransactionLoading] = useState(false);
+
 
   const router = useRouter();
   useEffect(() => {
@@ -178,7 +186,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
     setDurationOptions(newDurationOptions);
   };
-  const fetchData = async () => {
+
+  const fetchGraphData = async () => {
     try {
       const response = await fetch('http://localhost:8080/graph');
       if (!response.ok) {
@@ -186,7 +195,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       }
       const result: IncomingData = await response.json();
       console.log(result);
-      
+
       let yieldData: number[] = [];
       let principalData: number[] = [];
       let labels: number[] = [];
@@ -216,36 +225,38 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     }
   };
 
+  const fetchPTandYTData = async () => {
+    try {
+      console.log("Fetching PT and YT data...");
+      setIsPTandYTDataLoading(true)
+      const durationNumber = selectedTradeDuration.name.split(' ')[0];
+
+      const response = await fetch(`http://localhost:8080/node/PTandYTByDuration/${durationNumber}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+
+      if (data.status) {
+        setPTData({ PTpx: data.PT_Px, PTapy: data.PT_APY });
+        setYTData({ YTpx: data.YT_Px, YTapy: data.YT_APY });
+        setTradeApy(parseFloat(data.UnderlyingYield.replace('%', '')));
+      }
+      setIsPTandYTDataLoading(false)
+    } catch (error) {
+      console.error("There was a problem with fetching PT and YT data: ", error);
+      setIsPTandYTDataLoading(false)
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchGraphData();
   }, [])
 
   useEffect(() => {
-    console.log("Fetching PT and YT data...");
-
-    const fetchPTandYTData = async () => {
-      try {
-        const durationNumber = selectedTradeDuration.name.split(' ')[0];
-  
-        const response = await fetch(`http://localhost:8080/node/PTandYTByDuration/${durationNumber}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-
-        if (data.status) {
-          setPTData({ PTpx: data.PT_Px, PTapy: data.PT_APY });
-          setYTData({ YTpx: data.YT_Px, YTapy: data.YT_APY });
-          setTradeApy(parseFloat(data.UnderlyingYield.replace('%', '')));
-        }
-      } catch (error) {
-        console.error("There was a problem with fetching PT and YT data: ", error);
-      }
-    };
-  
     fetchPTandYTData();
   }, [selectedTradeDuration]);
-  
+
   useEffect(() => {
     const delayInputTimeoutId = setTimeout(() => {
       setPTTradeValueFinal(PTTradeValue);
@@ -264,9 +275,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     return () => clearTimeout(delayInputTimeoutId);
   }, [YTTradeValue]);
 
-  
+
   useEffect(() => {
     const updateTradeValues = async () => {
+      setIsDerivedValueLoading(true);
       if (isPTActive && PTTradeValueFinal) {
         try {
           const durationNumber = selectedTradeDuration.name.split(' ')[0];
@@ -275,8 +287,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setYTTradeValue(data.YT);
+          setIsDerivedValueLoading(false);
         } catch (error) {
           console.error("There was a problem with fetching YT data based on PT value: ", error);
+          setIsDerivedValueLoading(false);
         }
       } else if (!isPTActive && YTTradeValueFinal) {
         try {
@@ -286,8 +300,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setPTTradeValue(data.PT);
+          setIsDerivedValueLoading(false);
         } catch (error) {
           console.error("There was a problem with fetching PT data based on YT value: ", error);
+          setIsDerivedValueLoading(false);
         }
       }
     };
@@ -427,6 +443,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
     console.log(Order);
     try {
+      setIsTransactionLoading(true);
       const response = await fetch('http://localhost:8080/transaction', {
         method: 'POST',
         headers: {
@@ -441,10 +458,17 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
       const data = await response.json();
       console.log('API call was successful, data:', data);
+      setIsTransactionLoading(false);
+      setShowSuccessPopup(true);
 
-      fetchData();
+      setTimeout(() => setShowSuccessPopup(false), 3000);
+
+      fetchGraphData();
+      fetchPTandYTData();
+
     } catch (error) {
       console.error('There was a problem with the API call:', error);
+      setIsTransactionLoading(false);
     }
 
 
@@ -900,6 +924,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     <div className="bg-gray-700/20 backdrop-blur-[4px] py-4 xl:py-6 rounded-xl w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
       <div>
         {" "}
+        <SuccessPopup
+          message="Your transaction was successful!"
+          isVisible={showSuccessPopup}
+          onClose={() => setShowSuccessPopup(false)}
+        />
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
           <span className="text-[16px] xl:text-lg font-bold text-[#f2f2f2] uppercase">
             Transact
@@ -1065,7 +1094,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
                 </Transition>
               </div>
             </Listbox>
-            <span className="text-gray-400 mx-0 mb-6 text-xs">[Underlying APY {tradeApy}%]</span>
+            {isPTandYTDataLoading ? (
+              <div className="text-gray-400 mx-0 mb-6 text-xs bg-gray-600/50 rounded-md h-4 w-24 animate-pulse"></div>
+            ) : (
+              <span className="text-gray-400 mx-0 mb-6 text-xs">[Underlying APY {tradeApy}%]</span>
+            )}
 
           </div>
 
@@ -1097,15 +1130,33 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
                     placeholder="0.00"
                     aria-describedby="price-addon apy-addon"
                     value={isPTActive ? PTTradeValue : YTTradeValue}
-                    onChange={(e) => isPTActive ? setPTTradeValue(e.target.value) : setYTTradeValue(e.target.value)}
-                  />
+                    onChange={(e) => {
+                      const intValue = parseInt(e.target.value, 10);
+
+                      const valueToSet = isNaN(intValue) ? '' : intValue.toString();
+
+                      if (isPTActive) {
+                        setPTTradeValue(valueToSet);
+                      } else {
+                        setYTTradeValue(valueToSet);
+                      }
+                    }} />
                   <div className="flex flex-col items-end px-5">
-                    <span className="text-gray-500 text-xs" id="price-addon">
-                      Px {isPTActive ? PTData.PTpx.toFixed(5) : YTData.YTpx.toFixed(5)}
-                    </span>
-                    <span className="text-gray-500 text-xs" id="apy-addon">
-                      APY {isPTActive ? PTData.PTapy.toFixed(2) : YTData.YTapy.toFixed(2)}%
-                    </span>
+                    {isPTandYTDataLoading ? (
+                      <>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-16 animate-pulse"></div>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-20 mt-1 animate-pulse"></div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-gray-500 text-xs" id="price-addon">
+                          Px {isPTActive ? PTData.PTpx.toFixed(5) : YTData.YTpx.toFixed(5)}
+                        </span>
+                        <span className="text-gray-500 text-xs" id="apy-addon">
+                          APY {isPTActive ? PTData.PTapy.toFixed(2) : YTData.YTapy.toFixed(2)}%
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1125,8 +1176,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
               <label htmlFor="price-bottom" className="block text-sm xl:text-sm font-medium leading-6 text-gray-100">
                 Buy
               </label>
-              <div className="relative mt-2 rounded-md shadow-sm">
-                {/* <div className="flex items-center rounded-md border-2 border-temporal50 bg-neutral-950/50 mt-2"> */}
+              {/* <div className="relative mt-2 rounded-md shadow-sm">
                 <div className="flex items-center rounded-md border-2 border-temporal50 bg-teal-950/50 mt-2">
                   <span className={`px-5 ${isPTActive ? 'text-orange-500' : 'text-blue-500'}`}>{isPTActive ? 'YT' : 'PT'}</span>
                   <input
@@ -1141,15 +1191,56 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
                     onChange={(e) => isPTActive ? setYTTradeValue(e.target.value) : setPTTradeValue(e.target.value)}
                   />
                   <div className="flex flex-col items-end px-5">
-                  <span className="text-gray-500 text-xs" id="price-addon">
-                      Px {isPTActive ? YTData.YTpx.toFixed(5) : PTData.PTpx.toFixed(5)}
-                    </span>
-                    <span className="text-gray-500 text-xs" id="apy-addon">
-                      APY {isPTActive ? YTData.YTapy.toFixed(2) : PTData.PTapy.toFixed(2)}%
-                    </span>
+                    {isPTandYTDataLoading ? (
+                      <>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-16 animate-pulse"></div>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-20 mt-1 animate-pulse"></div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-gray-500 text-xs" id="price-addon">
+                          Px {isPTActive ? YTData.YTpx.toFixed(5) : PTData.PTpx.toFixed(5)}
+                        </span>
+                        <span className="text-gray-500 text-xs" id="apy-addon">
+                          APY {isPTActive ? YTData.YTapy.toFixed(2) : PTData.PTapy.toFixed(2)}%
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div> */}
+              <div className="relative mt-2 rounded-md shadow-sm">
+                <div className="flex items-center rounded-md border-2 border-temporal50 bg-teal-950/50 mt-2">
+                  <span className={`px-5 ${isPTActive ? 'text-orange-500' : 'text-blue-500'}`}>
+                    {isPTActive ? 'YT' : 'PT'}
+                  </span>
+                  <div className="flex-grow border-0 rounded-md py-3 xl:py-4 pl-7 text-white bg-transparent focus:outline-none">
+                    {isDerivedValueLoading ? (
+                      <div className="animate-pulse bg-gray-600/50 h-6 rounded-md"></div>
+                    ) : (
+                      isPTActive ? YTTradeValue : PTTradeValue
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end px-5">
+                    {isPTandYTDataLoading ? (
+                      <>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-16 animate-pulse"></div>
+                        <div className="bg-gray-600/50 rounded-md h-4 w-20 mt-1 animate-pulse"></div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-gray-500 text-xs" id="price-addon">
+                          Px {isPTActive ? YTData.YTpx.toFixed(5) : PTData.PTpx.toFixed(5)}
+                        </span>
+                        <span className="text-gray-500 text-xs" id="apy-addon">
+                          APY {isPTActive ? YTData.YTapy.toFixed(2) : PTData.PTapy.toFixed(2)}%
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
+
             </div>
 
             <div className="w-full pb-5">
@@ -1299,7 +1390,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       </div>
       <button
         // className="w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal "
-        className={`button w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" ? "cursor-not-allowed" : ""}`}
+        className={`button w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" || isTransactionLoading ? "cursor-not-allowed" : ""}`}
 
         onClick={() => {
           switch (currentMode) {
@@ -1318,11 +1409,17 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
               break;
           }
         }}
-        disabled={currentMode === "Earn"}
+        disabled={currentMode === "Earn" || isTransactionLoading}
       >
-        <span className={`button-text ${currentMode === "Earn" ? "text-gray-500" : "text-gray-300"} z-10`}>
-          {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
-        </span>
+        {isTransactionLoading ? (
+          <span className="button-text text-gray-300 z-10 animate-spin">
+            Loading...
+          </span>
+        ) : (
+          <span className={`button-text ${currentMode === "Earn" ? "text-gray-500" : "text-gray-300"} z-10`}>
+            {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
+          </span>
+        )}
       </button>
 
       {/* CMNTS: END The order form */}
