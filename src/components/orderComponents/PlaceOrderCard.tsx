@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, useRef } from "react";
+import { Fragment, useEffect, useState, useRef, useCallback, ChangeEvent } from "react";
 import {
   ArrowSmallLeftIcon,
   ArrowSmallRightIcon,
@@ -129,11 +129,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
   const [RedeemAmount, setRedeemAmount] = useState('');
 
-  const [PTTradeValue, setPTTradeValue] = useState('1');
+  const [PTTradeValue, setPTTradeValue] = useState('1');  
   const [PTTradeValueFinal, setPTTradeValueFinal] = useState('');
+  const [YTTradeValueFinal, setYTTradeValueFinal] = useState('');
   const [PTData, setPTData] = useState({ PTpx: 0.0001, PTapy: 12.08 });
   const [YTTradeValue, setYTTradeValue] = useState('1');
-  const [YTTradeValueFinal, setYTTradeValueFinal] = useState('');
   const [YTData, setYTData] = useState({ YTpx: 0.999, YTapy: 4.03 });
 
   const [isPTActive, setIsPTActive] = useState(true);
@@ -146,7 +146,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   const [isPTandYTDataLoading, setIsPTandYTDataLoading] = useState(false);
   const [isDerivedValueLoading, setIsDerivedValueLoading] = useState(false);
   const [isTransactionLoading, setIsTransactionLoading] = useState(false);
-
 
   const router = useRouter();
   useEffect(() => {
@@ -165,17 +164,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
   const switchValues = () => {
     setIsAnimating(true);
-
-    const newPTTradeValue = YTTradeValue;
-    const newYTTradeValue = PTTradeValue;
-    setPTTradeValue(newPTTradeValue);
-    setYTTradeValue(newYTTradeValue);
-
     setIsPTActive(!isPTActive);
 
     setTimeout(() => {
       setIsAnimating(false);
-    }, 500); // Assuming your animation takes 1 second
+    }, 500);
   };
 
   const updateDurationOptions = (labels: number[]) => {
@@ -217,7 +210,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       setStructuredData(structuredData);
       setGraphData(structuredData)
       updateDurationOptions(labels);
-      // setselectedMintDuration(durationOptions[0])
       console.log("Fetching data for graph...");
 
     } catch (error) {
@@ -260,7 +252,6 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   useEffect(() => {
     const delayInputTimeoutId = setTimeout(() => {
       setPTTradeValueFinal(PTTradeValue);
-      console.log("Final PT Trade Value is", PTTradeValue);
     }, 800);
 
     return () => clearTimeout(delayInputTimeoutId);
@@ -269,13 +260,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   useEffect(() => {
     const delayInputTimeoutId = setTimeout(() => {
       setYTTradeValueFinal(YTTradeValue);
-      console.log("Final YT Trade Value is", YTTradeValue);
     }, 800);
 
     return () => clearTimeout(delayInputTimeoutId);
   }, [YTTradeValue]);
-
-
+  
   useEffect(() => {
     const updateTradeValues = async () => {
       setIsDerivedValueLoading(true);
@@ -287,6 +276,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setYTTradeValue(data.YT);
+          console.log("YT Value from BE is", data.YT)
           setIsDerivedValueLoading(false);
         } catch (error) {
           console.error("There was a problem with fetching YT data based on PT value: ", error);
@@ -296,10 +286,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
         try {
           const durationNumber = selectedTradeDuration.name.split(' ')[0];
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/node/YTForPTByDuration/${durationNumber}/${YTTradeValueFinal}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/node/PTForYTByDuration/${durationNumber}/${YTTradeValueFinal}`);
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           setPTTradeValue(data.PT);
+          console.log("PT Value from BE is", data.PT)
           setIsDerivedValueLoading(false);
         } catch (error) {
           console.error("There was a problem with fetching PT data based on YT value: ", error);
@@ -438,13 +429,13 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     const Order = {
       Type: isPTActive ? "PT" : "YT",
       Unit: parseFloat(isPTActive ? PTTradeValue : YTTradeValue),
-      Duration: parseInt(selectedTradeDuration.name.split(' ')[0], 10), // Assuming the format "XX days"
+      Duration: parseInt(selectedTradeDuration.name.split(' ')[0], 10),
     };
 
     console.log(Order);
     try {
       setIsTransactionLoading(true);
-      
+
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaction`, {
         method: 'POST',
@@ -1133,9 +1124,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
                     aria-describedby="price-addon apy-addon"
                     value={isPTActive ? PTTradeValue : YTTradeValue}
                     onChange={(e) => {
-                      const intValue = parseInt(e.target.value, 10);
-
-                      const valueToSet = isNaN(intValue) ? '' : intValue.toString();
+                      const value = e.target.value;
+                      const isDecimalPoint: boolean = value.charAt(value.length - 1) === '.';
+                      const floatValue = parseFloat(value);
+                      const valueToSet = isNaN(floatValue) ? '' : isDecimalPoint ? `${floatValue}.` : value;
 
                       if (isPTActive) {
                         setPTTradeValue(valueToSet);
