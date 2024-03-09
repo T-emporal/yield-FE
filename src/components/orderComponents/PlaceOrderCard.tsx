@@ -198,8 +198,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
         const value = item[key];
         const [yieldStr, principalStr] = value.split(', ').map(s => s.split(': ')[1]);
         labels.push(parseInt(key));
-        yieldData.push(parseFloat(parseFloat(yieldStr).toFixed(2)));
-        principalData.push(parseFloat(parseFloat(principalStr).toFixed(2)));
+        yieldData.push(parseFloat(parseFloat(yieldStr).toFixed(4)));
+        principalData.push(parseFloat(parseFloat(principalStr).toFixed(4)));
       });
 
       const structuredData: GraphData = {
