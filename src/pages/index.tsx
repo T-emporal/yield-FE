@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,7 +8,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 
 interface SingleTokenCardProps {
   token: string;
-  tokenYield: string;
+  tokenYield: string | undefined;
   gradient: string;
   logoSrc: string;
 }
@@ -37,15 +39,11 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
             Yield Upto
           </p>
           <div className="font-helvetica-neue text-4xl text-[#0ABAB5] flex items-end justify-between">
-            <span>{tokenYield}</span>
-            <div className="text-[#f2f2f2] text-sm flex items-end">
-              <Link href={`/transact?tab=trade&token=${"st" + token}`} passHref>
-                <span className="border-r border-temporal px-4 cursor-pointer" onClick={(e) => e.stopPropagation()}>Trade</span>
-              </Link>
-              <Link href={`/transact?tab=mint&token=${"st" + token}`} passHref>
-                <span className="pl-4" onClick={(e) => e.stopPropagation()}>Mint</span>
-              </Link>
-            </div>
+            {tokenYield ? (
+              <span className="text-4xl text-[#0ABAB5]">{tokenYield}</span>
+            ) : (
+              <div className="h-8 w-24 bg-gray-600/50 rounded animate-pulse"></div>
+            )}
           </div>
         </div>
       </div>
@@ -54,16 +52,34 @@ const SingleTokenCard = ({ token, tokenYield, gradient, logoSrc }: SingleTokenCa
 }
 export default function Home() {
 
+  const [injYield, setInjYield] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchYieldData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/maxYield`);
+        if (!response.ok) throw new Error('Failed to fetch maxYield');
+        const data = await response.json();
+        if (data.status) {
+          setInjYield(`${data.max.toFixed(2)}%`);
+          // console.log("INJ Yield: ", data.max.toFixed(2));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchYieldData();
+  }, []);
+
   return (
 
     <DashboardLayout activePage={"Markets"}>
       <section className="grid grid-cols-3 gap-[67px] mt-[80px] mx-auto max-w-[1280px]">
         <SingleTokenCard
-          gradient={
-            "linear-gradient(180deg, rgba(0, 40, 29, 0.25)  0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.3)"
-          }
+          gradient="linear-gradient(180deg, rgba(0, 40, 29, 0.25)  0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.3)"
           token="INJ"
-          tokenYield="7.35%"
+          tokenYield={injYield}
           logoSrc="./logo_injective.svg"
         />
         <SingleTokenCard

@@ -31,7 +31,7 @@ import { BigNumberInBase } from "@injectivelabs/utils";
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Xarrow from "react-xarrows";
-import SuccessPopup from "../basicComponents/SuccessPopup";
+import Popup from "../basicComponents/Popup";
 
 import { Wallet, WalletStrategy, MsgBroadcaster } from '@injectivelabs/wallet-ts'
 import {
@@ -129,7 +129,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
   const [RedeemAmount, setRedeemAmount] = useState('');
 
-  const [PTTradeValue, setPTTradeValue] = useState('1');  
+  const [PTTradeValue, setPTTradeValue] = useState('1');
   const [PTTradeValueFinal, setPTTradeValueFinal] = useState('');
   const [YTTradeValueFinal, setYTTradeValueFinal] = useState('');
   const [PTData, setPTData] = useState({ PTpx: 0.0001, PTapy: 12.08 });
@@ -140,12 +140,15 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   const [isAnimating, setIsAnimating] = useState(false);
 
   const [tradeApy, setTradeApy] = useState(4.15);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupColor, setPopupColor] = useState('');
 
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [isPTandYTDataLoading, setIsPTandYTDataLoading] = useState(false);
   const [isDerivedValueLoading, setIsDerivedValueLoading] = useState(false);
   const [isTransactionLoading, setIsTransactionLoading] = useState(false);
+  const [isServerRunning, setIsServerRunning] = useState(false);
 
   const router = useRouter();
   useEffect(() => {
@@ -198,8 +201,8 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
         const value = item[key];
         const [yieldStr, principalStr] = value.split(', ').map(s => s.split(': ')[1]);
         labels.push(parseInt(key));
-        yieldData.push(parseFloat(parseFloat(yieldStr).toFixed(4)));
-        principalData.push(parseFloat(parseFloat(principalStr).toFixed(4)));
+        yieldData.push(parseFloat(parseFloat(yieldStr).toFixed(2)));
+        principalData.push(parseFloat(parseFloat(principalStr).toFixed(2)));
       });
 
       const structuredData: GraphData = {
@@ -216,6 +219,10 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       console.error("There was a problem with fetching the data: ", error);
     }
   };
+
+  useEffect(() => {
+    fetchGraphData();
+  }, [])
 
   const fetchPTandYTData = async () => {
     try {
@@ -242,12 +249,38 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
   };
 
   useEffect(() => {
-    fetchGraphData();
-  }, [])
-
-  useEffect(() => {
     fetchPTandYTData();
   }, [selectedTradeDuration]);
+
+  const checkServerStatus = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/status`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (data.status === true && data.message === "Server is running") {
+        setIsServerRunning(true);
+      } else {
+        setIsServerRunning(false);
+        setPopupMessage("Server is currently facing an issue, please contact the Temporal team.");
+        setPopupColor("bg-red-500"); 
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 10000);
+      }
+    } catch (error) {
+      console.error("There was a problem with fetching server status: ", error);
+      setIsServerRunning(false);
+      setPopupMessage("Server is currently facing an issue, please contact the Temporal team.");
+      setPopupColor("bg-red-500"); 
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 10000);
+    }
+  };
+
+  useEffect(() => {
+    checkServerStatus();
+  }, []);
 
   useEffect(() => {
     const delayInputTimeoutId = setTimeout(() => {
@@ -264,7 +297,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
     return () => clearTimeout(delayInputTimeoutId);
   }, [YTTradeValue]);
-  
+
   useEffect(() => {
     const updateTradeValues = async () => {
       setIsDerivedValueLoading(true);
@@ -452,9 +485,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
       const data = await response.json();
       console.log('API call was successful, data:', data);
       setIsTransactionLoading(false);
-      setShowSuccessPopup(true);
+      setPopupMessage("Your transaction was successful!");
+      setPopupColor("bg-temporal");
+      setShowPopup(true);
 
-      setTimeout(() => setShowSuccessPopup(false), 3000);
+      setTimeout(() => setShowPopup(false), 3000);
 
       fetchGraphData();
       fetchPTandYTData();
@@ -917,10 +952,11 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
     <div className="bg-gray-700/20 backdrop-blur-[4px] py-4 xl:py-6 rounded-xl w-full flex flex-col xl:justify-between h-full min-h-[600px] ">
       <div>
         {" "}
-        <SuccessPopup
-          message="Your transaction was successful!"
-          isVisible={showSuccessPopup}
-          onClose={() => setShowSuccessPopup(false)}
+        <Popup
+          message={popupMessage}
+          isVisible={showPopup}
+          onClose={() => setShowPopup(false)}
+          color={popupColor}
         />
         <div className="flex items-center justify-between mb-2 xl:mb-4 px-4 xl:px-6">
           <span className="text-[16px] xl:text-lg font-bold text-[#f2f2f2] uppercase">
@@ -1383,9 +1419,7 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
 
       </div>
       <button
-        // className="w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal "
-        className={`button w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" || isTransactionLoading ? "cursor-not-allowed" : ""}`}
-
+        className={`button w-[350px] mx-auto mt-5 py-2 text-gray-300 rounded-md shadow-md border-1 border-temporal ${currentMode === "Earn" || isTransactionLoading || !isServerRunning ? "cursor-not-allowed" : ""}`}
         onClick={() => {
           switch (currentMode) {
             case "Trade":
@@ -1403,18 +1437,26 @@ const PlaceOrderCard = ({ handleClick, yieldGraphOpen, setLineColor, setGraphDat
               break;
           }
         }}
-        disabled={currentMode === "Earn" || isTransactionLoading}
+        disabled={currentMode === "Earn" || isTransactionLoading || !isServerRunning}
       >
-        {isTransactionLoading ? (
-          <span className="button-text text-gray-300 z-10 animate-spin">
-            Loading...
-          </span>
-        ) : (
-          <span className={`button-text ${currentMode === "Earn" ? "text-gray-500" : "text-gray-300"} z-10`}>
-            {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
-          </span>
-        )}
+        {
+          isTransactionLoading ? (
+            <span className="button-text text-gray-300 z-10 animate-spin">
+              Loading...
+            </span>
+          ) : !isServerRunning ? (
+            <span className="button-text text-gray-300 z-10">
+              Server not ready
+            </span>
+          ) : (
+            <span className={`button-text text-gray-300 z-10`}>
+              {currentMode === 'Mint' ? mintMode.toUpperCase() : currentMode.toUpperCase()}
+            </span>
+          )
+        }
+
       </button>
+
 
       {/* CMNTS: END The order form */}
 

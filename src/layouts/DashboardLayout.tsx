@@ -28,6 +28,11 @@ import { Network, getNetworkEndpoints } from "@injectivelabs/networks";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { json } from "stream/consumers";
 import Image from 'next/image';
+import {
+  PowerIcon
+} from "@heroicons/react/24/outline";
+
+import Popup from "@/components/basicComponents/Popup";
 
 import Cookies from 'js-cookie';
 import Router from 'next/router';
@@ -94,7 +99,22 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
   const [topLeftOrbPosition, setTopLeftOrbPosition] = useState<OrbPosition>({ top: '-5vh', left: '-10vw', bottom: '', right: '' });
   const [bottomRightOrbPosition, setBottomRightOrbPosition] = useState<OrbPosition>({ top: '', left: '', bottom: '-5vh', right: '-10vw' });
 
+  const [showPopup, setShowPopup] = useState(false);
 
+  const handleResetClick = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reset`);
+      if (!response.ok) {
+        throw new Error('Failed to reset AMM');
+      }
+      setShowPopup(true);
+      setTimeout(() => {
+        setShowPopup(false);
+        window.location.reload(); 
+      }, 3000);    } catch (error) {
+      console.error("API call failed:", error);
+    }
+  };
 
   useEffect(() => {
     const currentPath = router.pathname;
@@ -353,23 +373,37 @@ const DashboardLayout = ({ children, activePage }: LayoutProps) => {
           ))}
         </div>
 
-        <div className="flex ">
+        <div className="flex gap-4">
+          <button className="p-2 rounded-md bg-temporal/70 hover:bg-temporal50 text-white" 
+          onClick={handleResetClick}>
+            <PowerIcon className="h-6 w-10" aria-hidden="true" />
+          </button>
+          {showPopup && (
+            <Popup
+              message="AMM has been Reset, reloading this page..."
+              isVisible={showPopup}
+              onClose={() => setShowPopup(false)}
+              duration={3000}
+              color="bg-temporal"
+            />
+          )}
+
           <button
             onClick={() => {
               fetch('/api/logout')
                 .then(() => {
-                  Router.push('/login'); // Optionally reload or redirect after logging out
+                  Router.push('/login');
                 })
                 .catch((error) => console.error('Logout failed:', error));
             }}
-            className="font-proxima-nova mr-4 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10"
+            className="font-proxima-nova flex justify-center rounded-md bg-temporal/70 py-3 px-6 font-normal text-white hover:bg-temporal50 z-10"
           >
             Logout
           </button>
 
           {publicAddress ? (
             <>
-              <button className="font-proxima-nova mr-16 flex justify-center rounded-md border-2 border-[#008884] bg-[#008884] py-3 px-6 font-normal text-black hover:border-[#008884] hover:bg-black hover:text-[#008884] z-10">
+              <button className="font-proxima-nova mr-16 flex justify-center rounded-md bg-temporal/70 py-3 px-6 font-normal text-white hover:bg-temporal50  z-10">
                 {publicAddress.slice(0, 5)}...
                 {publicAddress.slice(
                   publicAddress.length - 4,
